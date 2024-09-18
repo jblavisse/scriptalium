@@ -1,5 +1,6 @@
 // components/MDXEditor.tsx
 import React, { ForwardedRef } from 'react';
+import "@mdxeditor/editor/style.css";
 import {
     MDXEditor,
     headingsPlugin,
@@ -34,7 +35,7 @@ const MyMDXEditor: React.FC<MyMDXEditorProps> = ({ editorRef, ...props }) => {
     return (
         <div className="mdx-editor-container">
             <MDXEditor
-                contentEditableClassName="MDXEditor-content w-4/5 mx-auto"
+                contentEditableClassName="MDXEditor-content"
                 plugins={[
                     toolbarPlugin({
                         toolbarContents: () => (
@@ -76,7 +77,6 @@ const MyMDXEditor: React.FC<MyMDXEditorProps> = ({ editorRef, ...props }) => {
                     markdownShortcutPlugin(),
                     imagePlugin(),
                     tablePlugin(),
-                    listsPlugin(),
                     linkDialogPlugin(),
                     frontmatterPlugin(),
                 ]}
@@ -87,4 +87,4 @@ const MyMDXEditor: React.FC<MyMDXEditorProps> = ({ editorRef, ...props }) => {
     );
 };
 
-export default MyMDXEditor; 
+export default MyMDXEditor;
