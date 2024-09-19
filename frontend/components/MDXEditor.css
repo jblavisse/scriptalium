@@ -71,3 +71,10 @@
 .mdxeditor-popup-container {
     z-index: 1000; /* Priorité élevée pour éviter les conflits avec d'autres éléments */
 }
+.highlighted-selection {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+.MDXEditor-content ::selection {
+    background-color: #ECB761; /* Couleur dorée */
+    color: #fff; /* Texte en blanc */
+}
