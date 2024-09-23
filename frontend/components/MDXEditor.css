@@ -42,7 +42,6 @@
 .MDXEditor-content {
     width: 80%; /* Ajuste la largeur */
     margin: 20px auto; /* Centrer avec plus de marge */
-    height: 80vh;
     font-family: 'Arial', sans-serif;
     font-size: 16px;
     padding: 20px;
@@ -77,4 +76,8 @@
 .MDXEditor-content ::selection {
     background-color: #ECB761; /* Couleur dorée */
     color: #fff; /* Texte en blanc */
+}
+.highlight {
+    background-color: #ECB761; /* Couleur dorée */
+    /* Vous pouvez personnaliser davantage le style si nécessaire */
 }
