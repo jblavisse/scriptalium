@@ -14,14 +14,12 @@ import {
   LexicalNode,
   ElementNode,
   $isNodeSelection,
-} from 'lexical';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   REDO_COMMAND,
   UNDO_COMMAND,
 } from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
@@ -37,8 +35,7 @@ import {
   $isQuoteNode,
 } from '@lexical/rich-text';
 import { $createCodeNode, $isCodeNode } from '@lexical/code';
-import { $createImageNode } from '../nodes/ImageNode'; // Assurez-vous que le chemin est correct
-// Importation des icônes Material UI
+import { $createImageNode } from '../nodes/ImageNode';
 import {
   FormatBold,
   FormatItalic,

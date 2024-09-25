@@ -443,3 +443,21 @@
     font-style: italic;
     color: gray;
   }
+
+  .floating-toolbar {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.1); 
+    border: 1px solid #ccc;         
+    border-radius: 4px;              
+    width: 150px;                    
+    height: 40px;                    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .highlight {
+    background-color: #ECB761;
+    color: white;
+  }
+  

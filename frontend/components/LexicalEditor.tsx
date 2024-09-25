@@ -14,17 +14,24 @@ import { LinkNode, AutoLinkNode } from '@lexical/link';
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 import { HashtagNode } from '@lexical/hashtag';
 import { CodeNode, CodeHighlightNode } from '@lexical/code';
+import { MarkNode } from '@lexical/mark'; // Import du MarkNode
 import ExampleTheme from '../ExampleTheme';
 import ToolbarPlugin from '../plugins/ToolbarPlugin';
 import TreeViewPlugin from '../plugins/TreeViewPlugin';
 import { ImageNode } from '../nodes/ImageNode';
-
+import CommentPlugin from '../plugins/CommentPlugin';
 
 const placeholder = 'Entrez du texte enrichi...';
 
+const theme = {
+  text: {
+    highlight: 'lexical-highlight', // Classe CSS pour le surlignage
+  },
+};
+
 const editorConfig = {
   namespace: 'React.js Demo',
-  theme: ExampleTheme,
+  theme: theme,
   onError(error: Error, editor: LexicalEditor) {
     throw error;
   },
@@ -40,9 +47,9 @@ const editorConfig = {
     CodeNode,
     CodeHighlightNode,
     ImageNode,
+    MarkNode, // Ajout du MarkNode
   ],
 };
-
 export default function App() {
   return (
     <LexicalComposer initialConfig={editorConfig}>
@@ -50,12 +57,8 @@ export default function App() {
         <ToolbarPlugin />
         <div className="editor-inner">
           <RichTextPlugin
-            contentEditable={
-              <ContentEditable className="editor-input" />
-            }
-            placeholder={
-              <div className="editor-placeholder">{placeholder}</div>
-            }
+            contentEditable={<ContentEditable className="editor-input" />}
+            placeholder={<div className="editor-placeholder">{placeholder}</div>}
             ErrorBoundary={LexicalErrorBoundary}
           />
           <HistoryPlugin />
@@ -65,6 +68,7 @@ export default function App() {
           <TablePlugin />
           <HashtagPlugin />
           <TreeViewPlugin />
+          <CommentPlugin />
         </div>
       </div>
     </LexicalComposer>
