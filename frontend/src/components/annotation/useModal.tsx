@@ -1,7 +1,7 @@
 import {useCallback, useMemo, useState} from 'react';
 import * as React from 'react';
 
-import Modal from '../../src/ui/Modal';
+import Modal from '@/components/ui/Modal';
 
 export default function useModal(): [
   JSX.Element | null,

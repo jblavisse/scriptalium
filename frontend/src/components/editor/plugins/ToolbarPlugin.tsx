@@ -56,6 +56,8 @@ import {
   FormatAlignJustify,
 } from '@mui/icons-material';
 
+import { Button } from "@/components/ui/button";
+
 const LowPriority = 1;
 
 function Divider() {
@@ -225,25 +227,27 @@ export default function ToolbarPlugin() {
       <Divider />
 
       {/* Boutons de formatage du texte */}
-      <button
+      <Button
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
         }}
-        className={'toolbar-item spaced ' + (isBold ? 'active' : '')}
+        className={(isBold ? 'active' : '')}
+        variant={"ghost"}
         aria-label="Gras"
       >
         <FormatBold />
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
         }}
-        className={'toolbar-item spaced ' + (isItalic ? 'active' : '')}
+        variant={"ghost"}
+        className={'' + (isItalic ? 'bg-red-800' : '')}
         aria-label="Italique"
       >
         <FormatItalic />
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
         }}
@@ -251,7 +255,7 @@ export default function ToolbarPlugin() {
         aria-label="Souligné"
       >
         <FormatUnderlined />
-      </button>
+      </Button>
       <button
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
@@ -264,7 +268,7 @@ export default function ToolbarPlugin() {
       <Divider />
 
       {/* Boutons de listes */}
-      <button
+      <Button
         onClick={() => {
           if (isBulletList) {
             editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
@@ -276,7 +280,7 @@ export default function ToolbarPlugin() {
         aria-label="Liste à puces"
       >
         <FormatListBulleted />
-      </button>
+      </Button>
       <button
         onClick={() => {
           if (isNumberedList) {
@@ -293,7 +297,7 @@ export default function ToolbarPlugin() {
       <Divider />
 
       {/* Bouton de lien */}
-      <button
+      <Button
         onClick={() => {
           if (isLink) {
             editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
@@ -308,7 +312,7 @@ export default function ToolbarPlugin() {
         aria-label="Insérer un lien"
       >
         <LinkIcon />
-      </button>
+      </Button>
 
       {/* Bouton de citation */}
       <button
@@ -418,28 +422,6 @@ export default function ToolbarPlugin() {
       >
         <FormatAlignJustify />
       </button>
-
-      {/* Bouton d'insertion d'image */}
-      <Divider />
-      <button
-        onClick={() => {
-            const url = window.prompt("Entrez l'URL de l'image :", 'https://');
-            if (url !== null) {
-            const altText = window.prompt("Entrez le texte alternatif de l'image :", '') || '';
-            editor.update(() => {
-                const selection = $getSelection();
-                if ($isRangeSelection(selection)) {
-                const imageNode = $createImageNode({ src: url, altText });
-                selection.insertNodes([imageNode]);
-                }
-            });
-            }
-        }}
-        className="toolbar-item"
-        aria-label="Insérer une image"
-        >
-        <ImageIcon />
-        </button>
     </div>
   );
 }

@@ -46,7 +46,6 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import useLayoutEffect from '../shared/useLayoutEffect';
 
 import {
   Comment,
@@ -56,11 +55,10 @@ import {
   createThread,
   Thread,
   useCommentStore,
-} from './commenting';
-import useModal from './commenting/useModal';
-import CommentEditorTheme from '../src/themes/CommentEditorTheme';
-import Button from '../src/ui/Button';
-import ContentEditable from '../src/ui/ContentEditable';
+} from '.';
+import useModal from './useModal';
+import Button from '@/components/ui/Button';
+import ContentEditable from '@/components/ui/ContentEditable';
 
 // Import des icônes Material
 import AddCommentIcon from '@mui/icons-material/AddComment';
@@ -159,7 +157,6 @@ function PlainTextEditor({
     onError: (error: Error) => {
       throw error;
     },
-    theme: CommentEditorTheme,
   };
 
   return (

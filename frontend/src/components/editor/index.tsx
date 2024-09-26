@@ -1,3 +1,5 @@
+'use client'
+
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -14,18 +16,15 @@ import { LinkNode, AutoLinkNode } from '@lexical/link';
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 import { HashtagNode } from '@lexical/hashtag';
 import { CodeNode, CodeHighlightNode } from '@lexical/code';
-import { MarkNode } from '@lexical/mark'; // Import du MarkNode
-import ExampleTheme from '../ExampleTheme';
-import ToolbarPlugin from '../plugins/ToolbarPlugin';
-import TreeViewPlugin from '../plugins/TreeViewPlugin';
-import { ImageNode } from '../nodes/ImageNode';
-import CommentPlugin from '../plugins/CommentPlugin';
+import { MarkNode } from '@lexical/mark';
+import ToolbarPlugin from './plugins/ToolbarPlugin';
+import TreeViewPlugin from './plugins/TreeViewPlugin';
 
 const placeholder = 'Entrez du texte enrichi...';
 
 const theme = {
   text: {
-    highlight: 'lexical-highlight', // Classe CSS pour le surlignage
+    highlight: 'lexical-highlight',
   },
 };
 
@@ -46,11 +45,10 @@ const editorConfig = {
     HashtagNode,
     CodeNode,
     CodeHighlightNode,
-    ImageNode,
     MarkNode, // Ajout du MarkNode
   ],
 };
-export default function App() {
+export default function LexicalEditor() {
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <div className="editor-container">
@@ -68,7 +66,6 @@ export default function App() {
           <TablePlugin />
           <HashtagPlugin />
           <TreeViewPlugin />
-          <CommentPlugin />
         </div>
       </div>
     </LexicalComposer>
