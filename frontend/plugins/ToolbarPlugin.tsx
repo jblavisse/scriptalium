@@ -29,10 +29,11 @@ import {
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { $isLinkNode } from '@lexical/link';
 import {
-  HeadingTagType,
   $createHeadingNode,
   $createQuoteNode,
+  $isHeadingNode,
   $isQuoteNode,
+  HeadingTagType,
 } from '@lexical/rich-text';
 import { $createCodeNode, $isCodeNode } from '@lexical/code';
 import { $createImageNode } from '../nodes/ImageNode';
