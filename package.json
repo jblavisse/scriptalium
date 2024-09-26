@@ -1,0 +1,16 @@
+{
+  "name": "scriptalium",
+  "version": "1.0.0",
+  "description": "This project is a monorepo containing a frontend application built with **Next.js** and a backend built with **Django**. It serves as a starting point for developing a complete web application with a clear separation between the frontend and the backend.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^9.1.6"
+  }
+}
