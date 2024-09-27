@@ -57,7 +57,7 @@ import { Button } from "@/components/ui/button";
 const LowPriority = 1;
 
 function Divider() {
-  return <div className="divider" />;
+  return <div className="divider mx-2 border-l h-6" />;
 }
 
 export default function ToolbarPlugin() {
@@ -79,38 +79,59 @@ export default function ToolbarPlugin() {
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
 
-    if ($isRangeSelection(selection)) {
-      setIsBold(selection.hasFormat('bold'));
-      setIsItalic(selection.hasFormat('italic'));
-      setIsUnderline(selection.hasFormat('underline'));
-      setIsStrikethrough(selection.hasFormat('strikethrough'));
-
-      const anchorNode = selection.anchor.getNode();
-      let element =
-        anchorNode.getKey() === 'root'
-          ? anchorNode
-          : anchorNode.getTopLevelElementOrThrow();
-
-      const elementType = element.getType();
-
-      if (elementType === 'paragraph' || /^h\d$/.test(elementType)) {
-        setBlockType(elementType as HeadingTagType | 'paragraph');
-      }
-
-      setIsBulletList($isListNode(element) && element.getTag() === 'ul');
-      setIsNumberedList($isListNode(element) && element.getTag() === 'ol');
-      setIsQuote($isQuoteNode(element));
-      setIsCode($isCodeNode(element));
-
-      const node = getSelectedNode(selection);
-      const parent = node.getParent();
-      if ($isLinkNode(parent) || $isLinkNode(node)) {
-        setIsLink(true);
-      } else {
-        setIsLink(false);
-      }
+    if (!selection || !$isRangeSelection(selection)) {
+      // If there's no selection or it's not a range selection
+      return;
     }
-  }, [editor]);
+
+    setIsBold(selection.hasFormat('bold'));
+    setIsItalic(selection.hasFormat('italic'));
+    setIsUnderline(selection.hasFormat('underline'));
+    setIsStrikethrough(selection.hasFormat('strikethrough'));
+
+    const anchorNode = selection.anchor.getNode();
+    let element = anchorNode.getTopLevelElement();
+
+    if (!element) {
+      console.warn('No top-level element found for anchor node:', anchorNode);
+      return;
+    }
+
+    const elementType = element.getType();
+
+    if (elementType === 'paragraph' || /^h\d$/.test(elementType)) {
+      setBlockType(elementType as HeadingTagType | 'paragraph');
+    } else {
+      setBlockType('paragraph');
+    }
+
+    setIsBulletList($isListNode(element) && element.getTag() === 'ul');
+    setIsNumberedList($isListNode(element) && element.getTag() === 'ol');
+    setIsQuote($isQuoteNode(element));
+    setIsCode($isCodeNode(element));
+
+    const node = getSelectedNode(selection);
+    const parent = node?.getParent();
+    if ($isLinkNode(parent) || $isLinkNode(node)) {
+      setIsLink(true);
+    } else {
+      setIsLink(false);
+    }
+
+    // Debugging logs
+    console.log('Toolbar updated:', {
+      isBold,
+      isItalic,
+      isUnderline,
+      isStrikethrough,
+      blockType,
+      isBulletList,
+      isNumberedList,
+      isQuote,
+      isCode,
+      isLink,
+    });
+  }, [isBold, isItalic, isUnderline, isStrikethrough, blockType, isBulletList, isNumberedList, isQuote, isCode, isLink]);
 
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
@@ -154,15 +175,15 @@ export default function ToolbarPlugin() {
   }, [editor]);
 
   return (
-    <div className="toolbar flex items-center justify-between px-6 py-4 border-b" ref={toolbarRef}>
-      {/* Boutons Annuler/Rétablir */}
+    <div className="toolbar flex items-center justify-start px-6 py-4 border-b space-x-2" ref={toolbarRef}>
+      {/* Undo/Redo Buttons */}
       <button
         disabled={!canUndo}
         onClick={() => {
           editor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
-        className="toolbar-item spaced"
-        aria-label="Annuler"
+        className={`toolbar-item ${canUndo ? 'active' : 'disabled'}`}
+        aria-label="Undo"
       >
         <Undo />
       </button>
@@ -171,14 +192,14 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(REDO_COMMAND, undefined);
         }}
-        className="toolbar-item"
-        aria-label="Rétablir"
+        className={`toolbar-item ${canRedo ? 'active' : 'disabled'}`}
+        aria-label="Redo"
       >
         <Redo />
       </button>
       <Divider />
-
-      {/* Sélecteur de type de bloc */}
+      
+      {/* Block Type Selector */}
       <div className="toolbar-item block-controls">
         <select
           value={blockType}
@@ -187,9 +208,16 @@ export default function ToolbarPlugin() {
             editor.update(() => {
               const selection = $getSelection();
               if ($isRangeSelection(selection)) {
+                const anchorOffset = selection.anchor.offset;
+                const focusOffset = selection.focus.offset;
                 const nodes = selection.getNodes();
+
                 nodes.forEach((node) => {
-                  const topLevelNode = node.getTopLevelElementOrThrow();
+                  const topLevelNode = node.getTopLevelElement();
+                  if (!topLevelNode) {
+                    console.warn('No top-level element found for node:', node);
+                    return;
+                  }
                   let newNode: ElementNode | null = null;
 
                   if (value === 'paragraph') {
@@ -198,35 +226,39 @@ export default function ToolbarPlugin() {
                     newNode = $createHeadingNode(value);
                   }
 
-                  if (newNode) {
-                    if ($isElementNode(topLevelNode)) {
-                      const children = topLevelNode.getChildren();
-                      topLevelNode.replace(newNode);
-                      children.forEach((child: LexicalNode) => {
-                        child.remove();
-                        newNode!.append(child);
-                      });
-                    }
+                  if (newNode && $isElementNode(topLevelNode)) {
+                    const children = topLevelNode.getChildren();
+                    topLevelNode.replace(newNode);
+                    children.forEach((child: LexicalNode) => {
+                      child.remove();
+                      newNode!.append(child);
+                    });
+
+                    // Réapplique la sélection sur le nouveau nœud
+                    newNode.select(anchorOffset, focusOffset);
                   }
                 });
               }
             });
           }}
+          className="bg-gray-100 border border-gray-300 rounded px-2 py-1"
         >
-          <option value="paragraph">Paragraphe</option>
-          <option value="h1">Titre 1</option>
-          <option value="h2">Titre 2</option>
-          <option value="h3">Titre 3</option>
+          <option value="paragraph">Paragraph</option>
+          <option value="h1">Heading 1</option>
+          <option value="h2">Heading 2</option>
+          <option value="h3">Heading 3</option>
         </select>
       </div>
       <Divider />
+
+      {/* Text Formatting Buttons */}
       <Button
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
         }}
-        className={(isBold ? 'active' : '')}
-        variant={"ghost"}
-        aria-label="Gras"
+        className={`toolbar-item spaced ${isBold ? 'active' : ''}`}
+        variant="ghost"
+        aria-label="Bold"
       >
         <FormatBold />
       </Button>
@@ -234,9 +266,9 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
         }}
-        variant={"ghost"}
-        className={'' + (isItalic ? 'active' : '')}
-        aria-label="Italique"
+        className={`toolbar-item spaced ${isItalic ? 'active' : ''}`}
+        variant="ghost"
+        aria-label="Italic"
       >
         <FormatItalic />
       </Button>
@@ -244,9 +276,9 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
         }}
-        className={'toolbar-item spaced ' + (isUnderline ? 'active' : '')}
-        variant={"ghost"}
-        aria-label="Souligné"
+        className={`toolbar-item spaced ${isUnderline ? 'active' : ''}`}
+        variant="ghost"
+        aria-label="Underline"
       >
         <FormatUnderlined />
       </Button>
@@ -254,12 +286,14 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
         }}
-        className={'toolbar-item spaced ' + (isStrikethrough ? 'active' : '')}
-        aria-label="Barré"
+        className={`toolbar-item spaced ${isStrikethrough ? 'active' : ''}`}
+        aria-label="Strikethrough"
       >
         <StrikethroughS />
       </button>
       <Divider />
+
+      {/* List Buttons */}
       <Button
         onClick={() => {
           if (isBulletList) {
@@ -268,9 +302,9 @@ export default function ToolbarPlugin() {
             editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
           }
         }}
-        className={'toolbar-item spaced ' + (isBulletList ? 'active' : '')}
-        variant={"ghost"}
-        aria-label="Liste à puces"
+        className={`toolbar-item spaced ${isBulletList ? 'active' : ''}`}
+        variant="ghost"
+        aria-label="Unordered List"
       >
         <FormatListBulleted />
       </Button>
@@ -282,29 +316,33 @@ export default function ToolbarPlugin() {
             editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
           }
         }}
-        className={'toolbar-item spaced ' + (isNumberedList ? 'active' : '')}
-        aria-label="Liste numérotée"
+        className={`toolbar-item spaced ${isNumberedList ? 'active' : ''}`}
+        aria-label="Ordered List"
       >
         <FormatListNumbered />
       </button>
       <Divider />
+
+      {/* Link Button */}
       <Button
         onClick={() => {
           if (isLink) {
             editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
           } else {
-            const url = window.prompt("Entrez l'URL du lien :", 'https://');
+            const url = window.prompt("Enter the URL of the link:", 'https://');
             if (url !== null) {
               editor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
             }
           }
         }}
-        className={'toolbar-item spaced ' + (isLink ? 'active' : '')}
-        variant={"ghost"}
-        aria-label="Insérer un lien"
+        className={`toolbar-item spaced ${isLink ? 'active' : ''}`}
+        variant="ghost"
+        aria-label="Insert Link"
       >
         <LinkIcon />
       </Button>
+      
+      {/* Quote Button */}
       <button
         onClick={() => {
           editor.update(() => {
@@ -312,121 +350,91 @@ export default function ToolbarPlugin() {
             if ($isRangeSelection(selection)) {
               const nodes = selection.getNodes();
               nodes.forEach((node) => {
-                const topLevelNode = node.getTopLevelElementOrThrow();
+                const topLevelNode = node.getTopLevelElement();
+                if (!topLevelNode) {
+                  console.warn('No top-level element found for node:', node);
+                  return;
+                }
                 let newNode: ElementNode | null = null;
+
                 if (isQuote) {
                   newNode = $createParagraphNode();
+                  console.log('Converting QuoteNode to ParagraphNode');
                 } else {
                   newNode = $createQuoteNode();
+                  console.log('Creating QuoteNode');
                 }
+
                 if (newNode) {
                   if ($isElementNode(topLevelNode)) {
                     const children = topLevelNode.getChildren();
                     topLevelNode.replace(newNode);
                     children.forEach((child: LexicalNode) => {
-                      child.remove();
-                      newNode!.append(child);
+                      newNode!.append(child); // Reinsert children
                     });
                   }
                 }
               });
+            } else {
+              console.log("Selection is not a range selection.");
             }
           });
         }}
-        className={'toolbar-item spaced ' + (isQuote ? 'active' : '')}
-        aria-label="Bloc de citation"
+        className={`toolbar-item spaced ${isQuote ? 'active' : ''}`}
+        aria-label="Toggle Quote Block"
       >
         <FormatQuote />
       </button>
-      <button
-        onClick={() => {
-          editor.update(() => {
-            const selection = $getSelection();
-            if ($isRangeSelection(selection)) {
-              const nodes = selection.getNodes();
-              nodes.forEach((node) => {
-                const topLevelNode = node.getTopLevelElementOrThrow();
-                let newNode: ElementNode | null = null;
-                if (isCode) {
-                  newNode = $createParagraphNode();
-                } else {
-                  newNode = $createCodeNode();
-                }
-                if (newNode) {
-                  if ($isElementNode(topLevelNode)) {
-                    const children = topLevelNode.getChildren();
-                    topLevelNode.replace(newNode);
-                    children.forEach((child: LexicalNode) => {
-                      child.remove();
-                      newNode!.append(child);
-                    });
-                  }
-                }
-              });
-            }
-          });
-        }}
-        className={'toolbar-item spaced ' + (isCode ? 'active' : '')}
-        aria-label="Bloc de code"
-      >
-        <CodeIcon />
-      </button>
+
+     {/* Code Block Button */}
+<button
+  onClick={() => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const anchorNode = selection.anchor.getNode();
+        const topLevelNode = anchorNode.getTopLevelElementOrThrow();
+
+        if ($isCodeNode(topLevelNode)) {
+          // Si on est dans un CodeNode, on sort du bloc de code
+          // en insérant un nouveau paragraphe après le CodeNode
+          const paragraphNode = $createParagraphNode();
+          topLevelNode.insertAfter(paragraphNode);
+          // Déplacer le curseur dans le nouveau paragraphe
+          paragraphNode.selectStart();
+        } else {
+          // Si on n'est pas dans un CodeNode, on insère un nouveau CodeNode
+          const codeNode = $createCodeNode();
+          // Remplacer le nœud actuel par le CodeNode
+          topLevelNode.replace(codeNode);
+          // Déplacer le curseur à l'intérieur du CodeNode
+          codeNode.selectStart();
+        }
+      }
+    });
+  }}
+  className={`toolbar-item spaced ${isCode ? 'active' : ''}`}
+  aria-label="Toggle Code Block"
+>
+  <CodeIcon />
+</button>
+
       <Divider />
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
-        }}
-        className="toolbar-item spaced"
-        aria-label="Aligner à gauche"
-      >
-        <FormatAlignLeft />
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
-        }}
-        className="toolbar-item spaced"
-        aria-label="Centrer"
-      >
-        <FormatAlignCenter />
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
-        }}
-        className="toolbar-item spaced"
-        aria-label="Aligner à droite"
-      >
-        <FormatAlignRight />
-      </button>
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'justify');
-        }}
-        className="toolbar-item"
-        aria-label="Justifier"
-      >
-        <FormatAlignJustify />
-      </button>
     </div>
   );
 }
 
-function getSelectedNode(
-    selection: RangeSelection | NodeSelection ,
-  ): LexicalNode {
-    if ($isRangeSelection(selection)) {
-      const anchor = selection.anchor;
-      const focus = selection.focus;
-      const anchorNode = anchor.getNode();
-      const focusNode = focus.getNode();
-      if (anchorNode === focusNode) {
-        return anchorNode;
-      }
-      return selection.isBackward() ? focusNode : anchorNode;
-    } else if ($isNodeSelection(selection)) {
-      const nodes = selection.getNodes();
-      return nodes.length > 0 ? nodes[0] : selection.getNodes()[0];
+function getSelectedNode(selection: RangeSelection | NodeSelection): LexicalNode | null {
+  if ($isRangeSelection(selection)) {
+    const anchorNode = selection.anchor.getNode();
+    const focusNode = selection.focus.getNode();
+    if (anchorNode === focusNode) {
+      return anchorNode;
     }
-    throw new Error('No node is selected');
+    return selection.isBackward() ? focusNode : anchorNode;
+  } else if ($isNodeSelection(selection)) {
+    const nodes = selection.getNodes();
+    return nodes.length > 0 ? nodes[0] : null;
   }
+  return null;
+}
