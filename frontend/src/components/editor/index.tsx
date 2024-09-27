@@ -18,7 +18,7 @@ import { HashtagNode } from '@lexical/hashtag';
 import { CodeNode, CodeHighlightNode } from '@lexical/code';
 import { MarkNode } from '@lexical/mark';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
-import TreeViewPlugin from './plugins/TreeViewPlugin';
+
 
 const placeholder = 'Entrez du texte enrichi...';
 
@@ -45,7 +45,7 @@ const editorConfig = {
     HashtagNode,
     CodeNode,
     CodeHighlightNode,
-    MarkNode, // Ajout du MarkNode
+    MarkNode,
   ],
 };
 export default function LexicalEditor() {
@@ -65,7 +65,7 @@ export default function LexicalEditor() {
           <LinkPlugin />
           <TablePlugin />
           <HashtagPlugin />
-          <TreeViewPlugin />
+
         </div>
       </div>
     </LexicalComposer>

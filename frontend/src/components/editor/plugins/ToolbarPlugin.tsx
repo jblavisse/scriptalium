@@ -36,7 +36,6 @@ import {
   HeadingTagType,
 } from '@lexical/rich-text';
 import { $createCodeNode, $isCodeNode } from '@lexical/code';
-import { $createImageNode } from '../nodes/ImageNode';
 import {
   FormatBold,
   FormatItalic,
