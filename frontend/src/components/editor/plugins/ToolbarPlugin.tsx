@@ -6,7 +6,6 @@ import {
   $isElementNode,
   FORMAT_ELEMENT_COMMAND,
   FORMAT_TEXT_COMMAND,
-  LexicalEditor,
   SELECTION_CHANGE_COMMAND,
   $createParagraphNode,
   RangeSelection,
@@ -31,7 +30,6 @@ import { $isLinkNode } from '@lexical/link';
 import {
   $createHeadingNode,
   $createQuoteNode,
-  $isHeadingNode,
   $isQuoteNode,
   HeadingTagType,
 } from '@lexical/rich-text';
@@ -48,7 +46,6 @@ import {
   Code as CodeIcon,
   Undo,
   Redo,
-  Image as ImageIcon,
   FormatAlignLeft,
   FormatAlignCenter,
   FormatAlignRight,
@@ -83,7 +80,6 @@ export default function ToolbarPlugin() {
     const selection = $getSelection();
 
     if ($isRangeSelection(selection)) {
-      // Mises à jour des formats de texte
       setIsBold(selection.hasFormat('bold'));
       setIsItalic(selection.hasFormat('italic'));
       setIsUnderline(selection.hasFormat('underline'));
@@ -158,7 +154,7 @@ export default function ToolbarPlugin() {
   }, [editor]);
 
   return (
-    <div className="toolbar" ref={toolbarRef}>
+    <div className="toolbar flex items-center justify-between px-6 py-4 border-b" ref={toolbarRef}>
       {/* Boutons Annuler/Rétablir */}
       <button
         disabled={!canUndo}
@@ -224,8 +220,6 @@ export default function ToolbarPlugin() {
         </select>
       </div>
       <Divider />
-
-      {/* Boutons de formatage du texte */}
       <Button
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
@@ -241,7 +235,7 @@ export default function ToolbarPlugin() {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
         }}
         variant={"ghost"}
-        className={'' + (isItalic ? 'bg-red-800' : '')}
+        className={'' + (isItalic ? 'active' : '')}
         aria-label="Italique"
       >
         <FormatItalic />
@@ -251,6 +245,7 @@ export default function ToolbarPlugin() {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
         }}
         className={'toolbar-item spaced ' + (isUnderline ? 'active' : '')}
+        variant={"ghost"}
         aria-label="Souligné"
       >
         <FormatUnderlined />
@@ -265,8 +260,6 @@ export default function ToolbarPlugin() {
         <StrikethroughS />
       </button>
       <Divider />
-
-      {/* Boutons de listes */}
       <Button
         onClick={() => {
           if (isBulletList) {
@@ -276,6 +269,7 @@ export default function ToolbarPlugin() {
           }
         }}
         className={'toolbar-item spaced ' + (isBulletList ? 'active' : '')}
+        variant={"ghost"}
         aria-label="Liste à puces"
       >
         <FormatListBulleted />
@@ -294,8 +288,6 @@ export default function ToolbarPlugin() {
         <FormatListNumbered />
       </button>
       <Divider />
-
-      {/* Bouton de lien */}
       <Button
         onClick={() => {
           if (isLink) {
@@ -308,12 +300,11 @@ export default function ToolbarPlugin() {
           }
         }}
         className={'toolbar-item spaced ' + (isLink ? 'active' : '')}
+        variant={"ghost"}
         aria-label="Insérer un lien"
       >
         <LinkIcon />
       </Button>
-
-      {/* Bouton de citation */}
       <button
         onClick={() => {
           editor.update(() => {
@@ -347,8 +338,6 @@ export default function ToolbarPlugin() {
       >
         <FormatQuote />
       </button>
-
-      {/* Bouton de code */}
       <button
         onClick={() => {
           editor.update(() => {
@@ -382,8 +371,6 @@ export default function ToolbarPlugin() {
       >
         <CodeIcon />
       </button>
-
-      {/* Boutons d'alignement du texte */}
       <Divider />
       <button
         onClick={() => {
