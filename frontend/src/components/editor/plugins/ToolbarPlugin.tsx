@@ -81,7 +81,6 @@ export default function ToolbarPlugin() {
     const selection = $getSelection();
 
     if (!selection || !$isRangeSelection(selection)) {
-      // If there's no selection or it's not a range selection
       return;
     }
 
@@ -94,7 +93,6 @@ export default function ToolbarPlugin() {
     let element = anchorNode.getTopLevelElement();
 
     if (!element) {
-      console.warn('No top-level element found for anchor node:', anchorNode);
       return;
     }
 
@@ -118,20 +116,6 @@ export default function ToolbarPlugin() {
     } else {
       setIsLink(false);
     }
-
-    // Debugging logs
-    console.log('Toolbar updated:', {
-      isBold,
-      isItalic,
-      isUnderline,
-      isStrikethrough,
-      blockType,
-      isBulletList,
-      isNumberedList,
-      isQuote,
-      isCode,
-      isLink,
-    });
   }, [isBold, isItalic, isUnderline, isStrikethrough, blockType, isBulletList, isNumberedList, isQuote, isCode, isLink]);
 
   useEffect(() => {
@@ -216,7 +200,6 @@ export default function ToolbarPlugin() {
               nodes.forEach((node) => {
                 const topLevelNode = node.getTopLevelElement();
                 if (!topLevelNode) {
-                  console.warn('No top-level element found for node:', node);
                   return;
                 }
                 let newNode: ElementNode | null = null;
@@ -357,17 +340,14 @@ export default function ToolbarPlugin() {
               nodes.forEach((node) => {
                 const topLevelNode = node.getTopLevelElement();
                 if (!topLevelNode) {
-                  console.warn('No top-level element found for node:', node);
                   return;
                 }
                 let newNode: ElementNode | null = null;
 
                 if (isQuote) {
                   newNode = $createParagraphNode();
-                  console.log('Converting QuoteNode to ParagraphNode');
                 } else {
                   newNode = $createQuoteNode();
-                  console.log('Creating QuoteNode');
                 }
 
                 if (newNode) {
@@ -380,8 +360,6 @@ export default function ToolbarPlugin() {
                   }
                 }
               });
-            } else {
-              console.log("Selection is not a range selection.");
             }
           });
         }}
@@ -419,9 +397,9 @@ export default function ToolbarPlugin() {
       >
         <CodeIcon />
       </Button>
-          </div>
-        );
-      }
+    </div>
+  );
+}
 
 function getSelectedNode(selection: RangeSelection | NodeSelection): LexicalNode | null {
   if ($isRangeSelection(selection)) {
