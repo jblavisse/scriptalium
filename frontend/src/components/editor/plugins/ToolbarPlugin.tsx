@@ -160,7 +160,7 @@ export default function ToolbarPlugin() {
   }, [editor]);
 
   return (
-    <div className="toolbar flex items-center justify-start px-6 py-4 border-b space-x-2" ref={toolbarRef}>
+    <div className="toolbar flex items-center justify-center px-6 py-4 border-b space-x-2 shadow-[0px_1px_20px_1px_#00000024]" ref={toolbarRef}>
       {/* Undo/Redo Buttons */}
       <Button
         variant="ghost"
@@ -224,7 +224,7 @@ export default function ToolbarPlugin() {
           });
         }}
       >
-        <SelectTrigger className="w-[180px] bg-gray-100 border border-gray-300 rounded px-2 py-1">
+        <SelectTrigger className="w-[180px] bg-gray-100 border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-0">
           <SelectValue placeholder="Type" />
         </SelectTrigger>
         <SelectContent>

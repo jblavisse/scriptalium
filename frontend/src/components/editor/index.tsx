@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
+import React, { useState, useEffect } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
@@ -10,6 +10,7 @@ import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { LinkNode, AutoLinkNode } from '@lexical/link';
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
@@ -18,10 +19,11 @@ import { CodeNode, CodeHighlightNode } from '@lexical/code';
 import { MarkNode } from '@lexical/mark';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
-import { EditorThemeClasses } from 'lexical';
+import SelectionPlugin from './plugins/SelectionPlugin';
+import { EditorThemeClasses, $getSelection, $isRangeSelection } from 'lexical';
 
 const theme: EditorThemeClasses = {
-  // Text formatting styles
+  // Styles de mise en forme du texte
   text: { 
     bold: "font-bold",
     underline: "underline",
@@ -42,8 +44,6 @@ const theme: EditorThemeClasses = {
   },
   code: "bg-gray-100 rounded p-2 font-mono",
 };
-
-
 
 const editorConfig = {
   namespace: 'React.js Demo',
@@ -68,15 +68,45 @@ const editorConfig = {
   ],
 };
 
+interface SelectionInfo {
+  text: string;
+  rect: DOMRect;
+}
+
 export default function LexicalEditor() {
+  const [selection, setSelection] = useState<SelectionInfo | null>(null);
+
+  // Gestion des redimensionnements de fenêtre
+  useEffect(() => {
+    const handleResize = () => {
+      if (selection) {
+        const range = window.getSelection()?.getRangeAt(0);
+        if (range) {
+          const rect = range.getBoundingClientRect();
+          setSelection({
+            text: selection.text,
+            rect: rect,
+          });
+        }
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [selection]);
+
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="editor-container flex flex-col h-[80vh] w-[50vw] mx-auto bg-background rounded-lg shadow-lg">
+      <div className="editor-container flex flex-col w-[50vw] mx-auto bg-background rounded-lg shadow-lg relative">
         <ToolbarPlugin />
         <div className="editor-inner">
           <RichTextPlugin
-            contentEditable={<ContentEditable className="editor-input h-[75vh] w-full focus:outline-none" />}
-            placeholder={<div className="text-gray-500">Enter some text...</div>}
+            contentEditable={
+              <ContentEditable className="editor-input min-h-[75vh] max-h-[75vh] w-full overflow-y-auto focus:outline-none" />
+            }
             ErrorBoundary={LexicalErrorBoundary}
           />
           <HistoryPlugin />
@@ -85,6 +115,18 @@ export default function LexicalEditor() {
           <LinkPlugin />
           <TablePlugin />
           <HashtagPlugin />
+          <SelectionPlugin onSelectionChange={setSelection} />
+          {selection && (
+            <div
+              className="selection-toolbar bg-white border border-gray-300 p-2 rounded shadow-lg flex space-x-2 absolute z-50"
+              style={{
+                top: selection.rect.bottom + window.scrollY-30, // Positionné sous la sélection avec un décalage de 5px
+                left: selection.rect.left + window.scrollX - 300,
+              }}
+            >
+             
+            </div>
+          )}
         </div>
       </div>
     </LexicalComposer>
