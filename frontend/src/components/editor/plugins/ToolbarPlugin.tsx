@@ -4,7 +4,6 @@ import {
   $getSelection,
   $isRangeSelection,
   $isElementNode,
-  FORMAT_ELEMENT_COMMAND,
   FORMAT_TEXT_COMMAND,
   SELECTION_CHANGE_COMMAND,
   $createParagraphNode,
@@ -46,13 +45,15 @@ import {
   Code as CodeIcon,
   Undo,
   Redo,
-  FormatAlignLeft,
-  FormatAlignCenter,
-  FormatAlignRight,
-  FormatAlignJustify,
 } from '@mui/icons-material';
-
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const LowPriority = 1;
 
@@ -177,7 +178,8 @@ export default function ToolbarPlugin() {
   return (
     <div className="toolbar flex items-center justify-start px-6 py-4 border-b space-x-2" ref={toolbarRef}>
       {/* Undo/Redo Buttons */}
-      <button
+      <Button
+        variant="ghost"
         disabled={!canUndo}
         onClick={() => {
           editor.dispatchCommand(UNDO_COMMAND, undefined);
@@ -186,8 +188,9 @@ export default function ToolbarPlugin() {
         aria-label="Undo"
       >
         <Undo />
-      </button>
-      <button
+      </Button>
+      <Button
+        variant="ghost"
         disabled={!canRedo}
         onClick={() => {
           editor.dispatchCommand(REDO_COMMAND, undefined);
@@ -196,59 +199,59 @@ export default function ToolbarPlugin() {
         aria-label="Redo"
       >
         <Redo />
-      </button>
+      </Button>
       <Divider />
       
       {/* Block Type Selector */}
       <div className="toolbar-item block-controls">
-        <select
-          value={blockType}
-          onChange={(e) => {
-            const value = e.target.value as HeadingTagType | 'paragraph';
-            editor.update(() => {
-              const selection = $getSelection();
-              if ($isRangeSelection(selection)) {
-                const anchorOffset = selection.anchor.offset;
-                const focusOffset = selection.focus.offset;
-                const nodes = selection.getNodes();
+      <Select
+        onValueChange={(value: HeadingTagType | 'paragraph') => {
+          editor.update(() => {
+            const selection = $getSelection();
+            if ($isRangeSelection(selection)) {
+              const anchorOffset = selection.anchor.offset;
+              const focusOffset = selection.focus.offset;
+              const nodes = selection.getNodes();
 
-                nodes.forEach((node) => {
-                  const topLevelNode = node.getTopLevelElement();
-                  if (!topLevelNode) {
-                    console.warn('No top-level element found for node:', node);
-                    return;
-                  }
-                  let newNode: ElementNode | null = null;
+              nodes.forEach((node) => {
+                const topLevelNode = node.getTopLevelElement();
+                if (!topLevelNode) {
+                  console.warn('No top-level element found for node:', node);
+                  return;
+                }
+                let newNode: ElementNode | null = null;
 
-                  if (value === 'paragraph') {
-                    newNode = $createParagraphNode();
-                  } else if (value === 'h1' || value === 'h2' || value === 'h3') {
-                    newNode = $createHeadingNode(value);
-                  }
+                if (value === 'paragraph') {
+                  newNode = $createParagraphNode();
+                } else if (value === 'h1' || value === 'h2' || value === 'h3') {
+                  newNode = $createHeadingNode(value);
+                }
 
-                  if (newNode && $isElementNode(topLevelNode)) {
-                    const children = topLevelNode.getChildren();
-                    topLevelNode.replace(newNode);
-                    children.forEach((child: LexicalNode) => {
-                      child.remove();
-                      newNode!.append(child);
-                    });
-
-                    // Réapplique la sélection sur le nouveau nœud
-                    newNode.select(anchorOffset, focusOffset);
-                  }
-                });
-              }
-            });
-          }}
-          className="bg-gray-100 border border-gray-300 rounded px-2 py-1"
-        >
-          <option value="paragraph">Paragraph</option>
-          <option value="h1">Heading 1</option>
-          <option value="h2">Heading 2</option>
-          <option value="h3">Heading 3</option>
-        </select>
-      </div>
+                if (newNode && $isElementNode(topLevelNode)) {
+                  const children = topLevelNode.getChildren();
+                  topLevelNode.replace(newNode);
+                  children.forEach((child: LexicalNode) => {
+                    child.remove();
+                    newNode!.append(child);
+                  });
+                  newNode.select(anchorOffset, focusOffset);
+                }
+              });
+            }
+          });
+        }}
+      >
+        <SelectTrigger className="w-[180px] bg-gray-100 border border-gray-300 rounded px-2 py-1">
+          <SelectValue placeholder="Type" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="paragraph">Paragraph</SelectItem>
+          <SelectItem value="h1">Heading 1</SelectItem>
+          <SelectItem value="h2">Heading 2</SelectItem>
+          <SelectItem value="h3">Heading 3</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
       <Divider />
 
       {/* Text Formatting Buttons */}
@@ -282,7 +285,8 @@ export default function ToolbarPlugin() {
       >
         <FormatUnderlined />
       </Button>
-      <button
+      <Button
+        variant="ghost"
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
         }}
@@ -290,7 +294,7 @@ export default function ToolbarPlugin() {
         aria-label="Strikethrough"
       >
         <StrikethroughS />
-      </button>
+      </Button>
       <Divider />
 
       {/* List Buttons */}
@@ -308,7 +312,7 @@ export default function ToolbarPlugin() {
       >
         <FormatListBulleted />
       </Button>
-      <button
+      <Button
         onClick={() => {
           if (isNumberedList) {
             editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
@@ -318,9 +322,10 @@ export default function ToolbarPlugin() {
         }}
         className={`toolbar-item spaced ${isNumberedList ? 'active' : ''}`}
         aria-label="Ordered List"
+        variant="ghost"
       >
         <FormatListNumbered />
-      </button>
+      </Button>
       <Divider />
 
       {/* Link Button */}
@@ -343,7 +348,7 @@ export default function ToolbarPlugin() {
       </Button>
       
       {/* Quote Button */}
-      <button
+      <Button
         onClick={() => {
           editor.update(() => {
             const selection = $getSelection();
@@ -370,7 +375,7 @@ export default function ToolbarPlugin() {
                     const children = topLevelNode.getChildren();
                     topLevelNode.replace(newNode);
                     children.forEach((child: LexicalNode) => {
-                      newNode!.append(child); // Reinsert children
+                      newNode!.append(child);
                     });
                   }
                 }
@@ -382,47 +387,41 @@ export default function ToolbarPlugin() {
         }}
         className={`toolbar-item spaced ${isQuote ? 'active' : ''}`}
         aria-label="Toggle Quote Block"
+        variant="ghost"
       >
         <FormatQuote />
-      </button>
+      </Button>
 
      {/* Code Block Button */}
-<button
-  onClick={() => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        const anchorNode = selection.anchor.getNode();
-        const topLevelNode = anchorNode.getTopLevelElementOrThrow();
+      <Button
+        onClick={() => {
+          editor.update(() => {
+            const selection = $getSelection();
+            if ($isRangeSelection(selection)) {
+              const anchorNode = selection.anchor.getNode();
+              const topLevelNode = anchorNode.getTopLevelElementOrThrow();
 
-        if ($isCodeNode(topLevelNode)) {
-          // Si on est dans un CodeNode, on sort du bloc de code
-          // en insérant un nouveau paragraphe après le CodeNode
-          const paragraphNode = $createParagraphNode();
-          topLevelNode.insertAfter(paragraphNode);
-          // Déplacer le curseur dans le nouveau paragraphe
-          paragraphNode.selectStart();
-        } else {
-          // Si on n'est pas dans un CodeNode, on insère un nouveau CodeNode
-          const codeNode = $createCodeNode();
-          // Remplacer le nœud actuel par le CodeNode
-          topLevelNode.replace(codeNode);
-          // Déplacer le curseur à l'intérieur du CodeNode
-          codeNode.selectStart();
-        }
+              if ($isCodeNode(topLevelNode)) {
+                const paragraphNode = $createParagraphNode();
+                topLevelNode.insertAfter(paragraphNode);
+                paragraphNode.selectStart();
+              } else {
+                const codeNode = $createCodeNode();
+                topLevelNode.replace(codeNode);
+                codeNode.selectStart();
+              }
+            }
+          });
+        }}
+        className={`toolbar-item spaced ${isCode ? 'active' : ''}`}
+        aria-label="Toggle Code Block"
+        variant="ghost"
+      >
+        <CodeIcon />
+      </Button>
+          </div>
+        );
       }
-    });
-  }}
-  className={`toolbar-item spaced ${isCode ? 'active' : ''}`}
-  aria-label="Toggle Code Block"
->
-  <CodeIcon />
-</button>
-
-      <Divider />
-    </div>
-  );
-}
 
 function getSelectedNode(selection: RangeSelection | NodeSelection): LexicalNode | null {
   if ($isRangeSelection(selection)) {

@@ -71,7 +71,7 @@ const editorConfig = {
 export default function LexicalEditor() {
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="editor-container flex flex-col h-[80vh] w-full max-w-4xl mx-auto bg-background rounded-lg shadow-lg">
+      <div className="editor-container flex flex-col h-[80vh] w-[50vw] mx-auto bg-background rounded-lg shadow-lg">
         <ToolbarPlugin />
         <div className="editor-inner">
           <RichTextPlugin
