@@ -21,9 +21,10 @@ import ToolbarPlugin from './plugins/ToolbarPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import SelectionPlugin from './plugins/SelectionPlugin';
 import { EditorThemeClasses, $getSelection, $isRangeSelection } from 'lexical';
+import AnnotationForm from "@/components/annotation/annotationform";
 
 const theme: EditorThemeClasses = {
-  // Styles de mise en forme du texte
+
   text: { 
     bold: "font-bold",
     underline: "underline",
@@ -76,7 +77,6 @@ interface SelectionInfo {
 export default function LexicalEditor() {
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
 
-  // Gestion des redimensionnements de fenêtre
   useEffect(() => {
     const handleResize = () => {
       if (selection) {
@@ -120,11 +120,11 @@ export default function LexicalEditor() {
             <div
               className="selection-toolbar bg-white border border-gray-300 p-2 rounded shadow-lg flex space-x-2 absolute z-50"
               style={{
-                top: selection.rect.bottom + window.scrollY-30, // Positionné sous la sélection avec un décalage de 5px
+                top: selection.rect.bottom + window.scrollY-30,
                 left: selection.rect.left + window.scrollX - 300,
               }}
             >
-             
+             <AnnotationForm />
             </div>
           )}
         </div>
