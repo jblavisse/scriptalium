@@ -20,20 +20,17 @@ import { MarkNode } from '@lexical/mark';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import SelectionPlugin from './plugins/SelectionPlugin';
-import { EditorThemeClasses, $getSelection, $isRangeSelection } from 'lexical';
+import { EditorThemeClasses } from 'lexical';
 import AnnotationForm from "@/components/annotation/annotationform";
 
 const theme: EditorThemeClasses = {
-
   text: { 
     bold: "font-bold",
     underline: "underline",
     strikethrough: "line-through",
     subscript: "sub",
     superscript: "super",
-    code: "bg-gray-200 rounded px-1",
   },
-  quote: "border-l-4 border-gray-300 pl-4 italic text-gray-600",
   heading: {
     h1: "text-2xl font-bold",
     h2: "text-xl font-bold",
@@ -44,6 +41,8 @@ const theme: EditorThemeClasses = {
     ol: "list-decimal pl-5",
   },
   code: "bg-gray-100 rounded p-2 font-mono",
+  link: 'text-blue-600 underline',
+  quote: "border-l-4 border-gray-300 pl-4 italic text-gray-600",
 };
 
 const editorConfig = {
@@ -105,7 +104,9 @@ export default function LexicalEditor() {
         <div className="editor-inner">
           <RichTextPlugin
             contentEditable={
-              <ContentEditable className="editor-input min-h-[75vh] max-h-[75vh] w-full overflow-y-auto focus:outline-none" />
+              <ContentEditable 
+                className="editor-input min-h-[75vh] max-h-[75vh] w-full overflow-y-auto focus:outline-none"
+              />
             }
             ErrorBoundary={LexicalErrorBoundary}
           />
@@ -118,13 +119,13 @@ export default function LexicalEditor() {
           <SelectionPlugin onSelectionChange={setSelection} />
           {selection && (
             <div
-              className="selection-toolbar bg-white border border-gray-300 p-2 rounded shadow-lg flex space-x-2 absolute z-50"
+              className="selection-toolbar bg-white border border-gray-300 p-2 rounded shadow-lg flex space-x-2 absolute z-50 sm:max-w-[450px]"
               style={{
-                top: selection.rect.bottom + window.scrollY-30,
-                left: selection.rect.left + window.scrollX - 300,
-              }}
+                top: Math.min(selection.rect.bottom + window.scrollY - 30, window.innerHeight),
+                left: Math.min(selection.rect.left + window.scrollX - 300, window.innerWidth),
+              }}              
             >
-             <AnnotationForm />
+              <AnnotationForm />
             </div>
           )}
         </div>

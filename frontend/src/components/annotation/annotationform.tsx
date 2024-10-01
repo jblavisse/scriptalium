@@ -12,14 +12,14 @@ function AnnotationForm() {
   return (
     <div className="sm:max-w-[425px]">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium">Importer une annotation existante :</h2>
+        <h2 className="text-lg font-medium">Importer une annotation :</h2>
       </div>
       <div className="grid gap-4 py-4">
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label htmlFor="search">Search</Label>
           <Input id="search" placeholder="Search" />
-        </div>
-        <p className="text-center">Ou</p>
+        </div> */}
+        {/* <p className="text-center">Ou</p>
         <div className="space-y-2">
           <Label htmlFor="type">Crée une annotation :</Label>
           <Select>
@@ -32,7 +32,7 @@ function AnnotationForm() {
               <SelectItem value="type3">Type 3</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
         <div className="space-y-2">
           <Label htmlFor="title">Titre</Label>
           <Input id="title" placeholder="Titre" />
@@ -42,7 +42,8 @@ function AnnotationForm() {
           <Textarea id="description" placeholder="Lorem ipsum" />
         </div>
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-between">
+        <Button variant="outline">Upload</Button>
         <Button>Valider</Button>
       </div>
     </div>

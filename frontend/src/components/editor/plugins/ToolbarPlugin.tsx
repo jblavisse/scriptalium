@@ -24,8 +24,7 @@ import {
   REMOVE_LIST_COMMAND,
   $isListNode,
 } from '@lexical/list';
-import { TOGGLE_LINK_COMMAND } from '@lexical/link';
-import { $isLinkNode } from '@lexical/link';
+import { $toggleLink, $isLinkNode } from '@lexical/link';
 import {
   $createHeadingNode,
   $createQuoteNode,
@@ -310,26 +309,6 @@ export default function ToolbarPlugin() {
         <FormatListNumbered />
       </Button>
       <Divider />
-
-      {/* Link Button */}
-      <Button
-        onClick={() => {
-          if (isLink) {
-            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
-          } else {
-            const url = window.prompt("Enter the URL of the link:", 'https://');
-            if (url !== null) {
-              editor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
-            }
-          }
-        }}
-        className={`toolbar-item spaced ${isLink ? 'active' : ''}`}
-        variant="ghost"
-        aria-label="Insert Link"
-      >
-        <LinkIcon />
-      </Button>
-      
       {/* Quote Button */}
       <Button
         onClick={() => {
