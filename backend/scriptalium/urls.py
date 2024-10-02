@@ -1,12 +1,8 @@
-# api/urls.py
-
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from api.views import CommentViewSet
-
-router = DefaultRouter()
-router.register(r'comments', CommentViewSet, basename='comment')
+from django.urls import path
+from api.views import get_csrf_token,create_text,add_annotation
 
 urlpatterns = [
-    path('', include(router.urls)),  # Route de l'API pour les commentaires
+    path('api/texts/', create_text, name='create_text'),
+    path('api/texts/add-annotation/', add_annotation, name='add_annotation'),
+    path('api/get-csrf-token/', get_csrf_token, name='get_csrf_token'),
 ]

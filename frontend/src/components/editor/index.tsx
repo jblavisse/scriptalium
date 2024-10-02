@@ -71,10 +71,13 @@ const editorConfig = {
 interface SelectionInfo {
   text: string;
   rect: DOMRect;
+  startIndex: number;
+  endIndex: number;
 }
 
 export default function LexicalEditor() {
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
+  const [textId, setTextId] = useState<string>('1'); // Remplacez '1' par l'ID réel de votre texte
 
   useEffect(() => {
     const handleResize = () => {
@@ -83,7 +86,7 @@ export default function LexicalEditor() {
         if (range) {
           const rect = range.getBoundingClientRect();
           setSelection({
-            text: selection.text,
+            ...selection,
             rect: rect,
           });
         }
@@ -108,6 +111,7 @@ export default function LexicalEditor() {
                 className="editor-input min-h-[75vh] max-h-[75vh] w-full overflow-y-auto focus:outline-none"
               />
             }
+            placeholder={<div className="editor-placeholder">Commencez à écrire...</div>}
             ErrorBoundary={LexicalErrorBoundary}
           />
           <HistoryPlugin />
@@ -125,7 +129,11 @@ export default function LexicalEditor() {
                 left: Math.min(selection.rect.left + window.scrollX - 300, window.innerWidth),
               }}              
             >
-              <AnnotationForm />
+              <AnnotationForm
+                selectedText={selection.text}
+                startIndex={selection.startIndex}
+                endIndex={selection.endIndex}
+                onSelectionChange={setSelection} />
             </div>
           )}
         </div>

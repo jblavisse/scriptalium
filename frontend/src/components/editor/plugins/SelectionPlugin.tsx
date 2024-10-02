@@ -1,12 +1,24 @@
+// SelectionPlugin.tsx
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
 
-const SelectionPlugin = ({ onSelectionChange }:{ onSelectionChange:any }) => {
+interface SelectionInfo {
+  text: string;
+  rect: DOMRect;
+  startIndex: number;
+  endIndex: number;
+}
+
+interface SelectionPluginProps {
+  onSelectionChange: (selection: SelectionInfo | null) => void;
+}
+
+const SelectionPlugin: React.FC<SelectionPluginProps> = ({ onSelectionChange }) => {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    const handleClickOutside = (event:any) => {
-      if (!event.target.closest('.selection-toolbar')) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!(event.target as HTMLElement).closest('.selection-toolbar')) {
         onSelectionChange(null);
       }
     };
@@ -25,14 +37,18 @@ const SelectionPlugin = ({ onSelectionChange }:{ onSelectionChange:any }) => {
         if (selection && selection.toString().length > 0 && selection.rangeCount > 0) {
           const range = selection.getRangeAt(0);
           const rect = range.getBoundingClientRect();
+
+          const selectedText = selection.toString();
+          const rootElement = editor.getRootElement();
+          const fullText = rootElement?.textContent || '';
+          const startIndex = fullText.indexOf(selectedText);
+          const endIndex = startIndex + selectedText.length;
+
           onSelectionChange({
-            text: selection.toString(),
-            rect: {
-              top: rect.top + window.scrollY-50,
-              left: rect.left + window.scrollX-550,
-              bottom: rect.bottom + window.scrollY,
-              height: rect.height,
-            },
+            text: selectedText,
+            startIndex,
+            endIndex,
+            rect: rect,
           });
         } else {
           onSelectionChange(null);

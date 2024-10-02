@@ -1,7 +1,12 @@
 from rest_framework import serializers
-from .models import Comment
+from .models import Text, Annotation
 
-class CommentSerializer(serializers.ModelSerializer):
+class TextSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Comment
-        fields = ['id', 'author', 'content', 'created_at', 'thread_id', 'quote']
+        model = Text
+        fields = ['id', 'content', 'annotations']
+
+class AnnotationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Annotation
+        fields = ['id', 'title', 'description', 'start_index', 'end_index', 'text', 'created_at']
