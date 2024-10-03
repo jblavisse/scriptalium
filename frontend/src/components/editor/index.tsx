@@ -20,7 +20,7 @@ import { MarkNode } from '@lexical/mark';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import SelectionPlugin from './plugins/SelectionPlugin';
-import { EditorThemeClasses } from 'lexical';
+import { EditorThemeClasses,TextNode, TextFormatType } from 'lexical';
 import AnnotationForm from "@/components/annotation/annotationform";
 
 const theme: EditorThemeClasses = {
@@ -30,6 +30,7 @@ const theme: EditorThemeClasses = {
     strikethrough: "line-through",
     subscript: "sub",
     superscript: "super",
+    highlight: 'bg-yellow-300',
   },
   heading: {
     h1: "text-2xl font-bold",

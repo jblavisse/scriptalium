@@ -1,6 +1,7 @@
 // SelectionPlugin.tsx
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import HighlightPlugin from './Highlightplugin';
 
 interface SelectionInfo {
   text: string;
@@ -15,11 +16,13 @@ interface SelectionPluginProps {
 
 const SelectionPlugin: React.FC<SelectionPluginProps> = ({ onSelectionChange }) => {
   const [editor] = useLexicalComposerContext();
+  const [isHighlighted, setIsHighlighted] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!(event.target as HTMLElement).closest('.selection-toolbar')) {
         onSelectionChange(null);
+        setIsHighlighted(false);
       }
     };
 
@@ -34,11 +37,20 @@ const SelectionPlugin: React.FC<SelectionPluginProps> = ({ onSelectionChange }) 
     return editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
         const selection = window.getSelection();
-        if (selection && selection.toString().length > 0 && selection.rangeCount > 0) {
+
+        // Vérifiez que 'selection' n'est pas null et que 'rangeCount' est défini
+        if (!selection || selection.rangeCount === 0) {
+          onSelectionChange(null);
+          setIsHighlighted(false);
+          return;
+        }
+
+        const selectedText = selection.toString();
+
+        if (selectedText.trim().length > 0) {
           const range = selection.getRangeAt(0);
           const rect = range.getBoundingClientRect();
 
-          const selectedText = selection.toString();
           const rootElement = editor.getRootElement();
           const fullText = rootElement?.textContent || '';
           const startIndex = fullText.indexOf(selectedText);
@@ -50,14 +62,17 @@ const SelectionPlugin: React.FC<SelectionPluginProps> = ({ onSelectionChange }) 
             endIndex,
             rect: rect,
           });
+
+          setIsHighlighted(true); 
         } else {
           onSelectionChange(null);
+          setIsHighlighted(false); 
         }
       });
     });
   }, [editor, onSelectionChange]);
 
-  return null;
+  return <HighlightPlugin isHighlighted={isHighlighted} />;
 };
 
 export default SelectionPlugin;

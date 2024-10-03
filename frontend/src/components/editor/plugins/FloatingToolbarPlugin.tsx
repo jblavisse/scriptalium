@@ -10,7 +10,7 @@ import {
   $getNearestNodeFromDOMNode,
   $createTextNode,
   TEXT_TYPE_TO_FORMAT,
-  TextFormatType, // Assurez-vous que ceci est importé correctement
+  TextFormatType,
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
