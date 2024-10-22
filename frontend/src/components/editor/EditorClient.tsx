@@ -9,12 +9,17 @@ const LexicalEditor = dynamic(() => import('@/components/editor'), { ssr: false 
 
 const getCsrfToken = async () => {
   try {
-    await axios.get(`${apiUrl}/api/get-csrf-token/`, { withCredentials: true });
-    console.log('CSRF cookie set');
+    const response = await axios.get(`${apiUrl}/api/get-csrf-token/`, { withCredentials: true });
+    console.log('CSRF cookie set:', response.data);
   } catch (error) {
-    console.error('Erreur lors de l\'obtention du jeton CSRF', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Axios erreur lors de l\'obtention du jeton CSRF', error.response?.data || error.message);
+    } else {
+      console.error('Erreur inconnue lors de l\'obtention du jeton CSRF', error);
+    }
   }
 };
+
 
 const EditorClient: React.FC = () => {
   useEffect(() => {

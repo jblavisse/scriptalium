@@ -19,10 +19,11 @@ function getCookie(name: string): string | null {
 const csrftoken = getCookie('csrftoken');
 console.log('CSRF Token:', csrftoken);
 const axiosInstance = axios.create({
-  baseURL: apiUrl,
-  withCredentials: true,
+  baseURL: `${apiUrl}/`,
+  withCredentials: true, 
   headers: {
     'X-CSRFToken': csrftoken || '',
+    'Content-Type': 'application/json',
   },
 });
 
