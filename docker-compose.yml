@@ -18,7 +18,6 @@ services:
       dockerfile: ./docker/prod/api/Dockerfile
       args:
         SECRET_KEY: ${SECRET_KEY}
-        DEBUG: ${DEBUG}
         ALLOWED_HOSTS: ${ALLOWED_HOSTS}
         DB_NAME: ${DB_NAME}
         DB_USER: ${DB_USER}
@@ -29,7 +28,6 @@ services:
       - "8000:8000"
     environment:
       SECRET_KEY: ${SECRET_KEY}
-      DEBUG: ${DEBUG}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS}
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
