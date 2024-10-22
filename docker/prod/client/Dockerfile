@@ -33,7 +33,7 @@ COPY --from=builder /app/next.config.mjs ./
 COPY --from=builder /app/node_modules ./node_modules
 
 # Exposer le port sur lequel l'application va tourner
-EXPOSE 3000
+EXPOSE 3001
 
 # Démarrer l'application Next.js en mode production
 CMD ["npm", "run", "start"]

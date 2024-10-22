@@ -21,4 +21,4 @@ RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 
 # Démarrer le serveur Django avec gunicorn en production
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "scriptalium.wsgi:application", "--workers", "3"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8001", "scriptalium.wsgi:application", "--workers", "3"]
