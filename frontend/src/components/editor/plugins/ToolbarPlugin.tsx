@@ -1,4 +1,4 @@
-// ToolbarPlugin.tsx
+'use client';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   $getSelection,
@@ -24,7 +24,7 @@ import {
   REMOVE_LIST_COMMAND,
   $isListNode,
 } from '@lexical/list';
-import { $toggleLink, $isLinkNode } from '@lexical/link';
+import { $isLinkNode } from '@lexical/link';
 import {
   $createHeadingNode,
   $createQuoteNode,
@@ -39,7 +39,6 @@ import {
   StrikethroughS,
   FormatListBulleted,
   FormatListNumbered,
-  Link as LinkIcon,
   FormatQuote,
   Code as CodeIcon,
   Undo,
@@ -69,10 +68,10 @@ export default function ToolbarPlugin() {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);
-  const [blockType, setBlockType] = useState<HeadingTagType | 'paragraph'>('paragraph');
+  const [,setBlockType] = useState<HeadingTagType | 'paragraph'>('paragraph');
   const [isBulletList, setIsBulletList] = useState(false);
   const [isNumberedList, setIsNumberedList] = useState(false);
-  const [isLink, setIsLink] = useState(false);
+  const [,setIsLink] = useState(false);
   const [isQuote, setIsQuote] = useState(false);
   const [isCode, setIsCode] = useState(false);
 
@@ -89,7 +88,8 @@ export default function ToolbarPlugin() {
     setIsStrikethrough(selection.hasFormat('strikethrough'));
 
     const anchorNode = selection.anchor.getNode();
-    let element = anchorNode.getTopLevelElement();
+    const element = anchorNode.getTopLevelElement();
+
 
     if (!element) {
       return;
@@ -115,7 +115,7 @@ export default function ToolbarPlugin() {
     } else {
       setIsLink(false);
     }
-  }, [isBold, isItalic, isUnderline, isStrikethrough, blockType, isBulletList, isNumberedList, isQuote, isCode, isLink]);
+  }, []);
 
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {

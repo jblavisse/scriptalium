@@ -20,7 +20,7 @@ import { MarkNode } from '@lexical/mark';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import SelectionPlugin from './plugins/SelectionPlugin';
-import { EditorThemeClasses,TextNode, TextFormatType } from 'lexical';
+import { EditorThemeClasses} from 'lexical';
 import AnnotationForm from "@/components/annotation/annotationform";
 
 const theme: EditorThemeClasses = {
@@ -49,7 +49,7 @@ const theme: EditorThemeClasses = {
 const editorConfig = {
   namespace: 'React.js Demo',
   theme: theme,
-  onError(error: Error, editor: any) {
+  onError(error: Error) {
     throw error;
   },
   nodes: [
@@ -78,8 +78,6 @@ interface SelectionInfo {
 
 export default function LexicalEditor() {
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
-  const [textId, setTextId] = useState<string>('1'); // Remplacez '1' par l'ID réel de votre texte
-
   useEffect(() => {
     const handleResize = () => {
       if (selection) {
