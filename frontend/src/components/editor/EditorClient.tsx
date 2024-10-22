@@ -1,4 +1,3 @@
-// EditorClient.tsx
 'use client';
 
 import React, { useEffect } from 'react';
@@ -10,7 +9,7 @@ const LexicalEditor = dynamic(() => import('@/components/editor'), { ssr: false 
 
 const getCsrfToken = async () => {
   try {
-    await axios.get('${apiUrl}/api/get-csrf-token/', { withCredentials: true });
+    await axios.get(`${apiUrl}/api/get-csrf-token/`, { withCredentials: true });
     console.log('CSRF cookie set');
   } catch (error) {
     console.error('Erreur lors de l\'obtention du jeton CSRF', error);

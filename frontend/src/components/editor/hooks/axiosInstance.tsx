@@ -1,7 +1,6 @@
-// axiosInstance.ts
-
 import axios from 'axios';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 function getCookie(name: string): string | null {
   let cookieValue: string | null = null;
   if (document.cookie && document.cookie !== '') {
@@ -20,12 +19,11 @@ function getCookie(name: string): string | null {
 const csrftoken = getCookie('csrftoken');
 console.log('CSRF Token:', csrftoken);
 const axiosInstance = axios.create({
-  baseURL: '`${apiUrl}`',
+  baseURL: apiUrl,
   withCredentials: true,
   headers: {
     'X-CSRFToken': csrftoken || '',
   },
 });
-
 
 export default axiosInstance;
