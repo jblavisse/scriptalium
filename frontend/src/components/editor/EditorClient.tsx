@@ -5,12 +5,12 @@ import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import axios from 'axios';
 
-// Dynamically import LexicalEditor with SSR disabled
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 const LexicalEditor = dynamic(() => import('@/components/editor'), { ssr: false });
 
 const getCsrfToken = async () => {
   try {
-    await axios.get('http://localhost:8000/api/get-csrf-token/', { withCredentials: true });
+    await axios.get('${apiUrl}/api/get-csrf-token/', { withCredentials: true });
     console.log('CSRF cookie set');
   } catch (error) {
     console.error('Erreur lors de l\'obtention du jeton CSRF', error);

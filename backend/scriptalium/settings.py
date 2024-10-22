@@ -28,13 +28,23 @@ SECRET_KEY = config('SECRET_KEY')
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
+API_URL = config('API_URL', default='http://localhost:8003')
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+    API_URL, 
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    API_URL,
+]
+
 CSRF_COOKIE_SAMESITE = 'Lax'
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -114,9 +124,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
-]
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
