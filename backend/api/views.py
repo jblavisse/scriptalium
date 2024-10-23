@@ -41,7 +41,6 @@ def add_annotation(request):
     annotation_serializer = AnnotationSerializer(data=annotation_data)
     
     if annotation_serializer.is_valid():
-        annotation_serializer.save(user=request.user if request.user.is_authenticated else None)
+        annotation_serializer.save()
         return Response({'message': 'Annotation added', 'textId': text.id}, status=status.HTTP_201_CREATED)
     return Response(annotation_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
