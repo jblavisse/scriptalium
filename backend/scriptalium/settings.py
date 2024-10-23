@@ -28,7 +28,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 API_URL = config('API_URL', default='http://localhost:8003')
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    'http://localhost:3001',
     'http://89.168.61.185:3001',
     API_URL, 
 ]
@@ -36,7 +36,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
+    'http://localhost:3001',
     'http://89.168.61.185:3001',
     API_URL,
 ]
