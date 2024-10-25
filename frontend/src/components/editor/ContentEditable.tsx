@@ -1,28 +1,10 @@
-import './ContentEditable.css';
+import React from 'react';
+import EditorClient from '@/components/editor/EditorClient';
 
-import {ContentEditable} from '@lexical/react/LexicalContentEditable';
-import * as React from 'react';
-
-type Props = {
-  className?: string;
-  placeholderClassName?: string;
-  placeholder: string;
+const EditorPage: React.FC = () => {
+  return (
+    <EditorClient />
+  );
 };
 
-export default function LexicalContentEditable({
-  className,
-  placeholder,
-  placeholderClassName,
-}: Props): JSX.Element {
-  return (
-    <ContentEditable
-      className={className ?? 'ContentEditable__root'}
-      aria-placeholder={placeholder}
-      placeholder={
-        <div className={placeholderClassName ?? 'ContentEditable__placeholder'}>
-          {placeholder}
-        </div>
-      }
-    />
-  );
-}
+export default EditorPage;

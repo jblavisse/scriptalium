@@ -1,5 +1,3 @@
-// FloatingToolbarPlugin.tsx
-
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -9,8 +7,6 @@ import {
   FORMAT_TEXT_COMMAND,
   $getNearestNodeFromDOMNode,
   $createTextNode,
-  TEXT_TYPE_TO_FORMAT,
-  TextFormatType, // Assurez-vous que ceci est importé correctement
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
@@ -33,7 +29,7 @@ export default function FloatingToolbarPlugin() {
     const toolbarElement = toolbarRef.current;
     if (toolbarElement != null) {
       const toolbarWidth = toolbarElement.offsetWidth;
-      let top = rect.bottom + window.scrollY + 8;
+      const top = rect.bottom + window.scrollY + 8;
       let left = rect.left + window.scrollX + rect.width / 2 - toolbarWidth / 2; 
 
       if (left < 0) {
