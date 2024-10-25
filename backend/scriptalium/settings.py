@@ -20,19 +20,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
-CORS_ALLOW_ALL_ORIGINS = True
+API_URL = config('API_URL', default='http://localhost:8000')
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+    'http://89.168.61.185:3001',
+    API_URL, 
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://89.168.61.185:3001',
+    API_URL,
+]
+
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -88,7 +99,7 @@ DATABASES = {
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
+        'HOST': config('DB_HOST', 'db'),
         'PORT': config('DB_PORT', default='5432'),
     }
 }
@@ -111,7 +122,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
