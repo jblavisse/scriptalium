@@ -1,15 +1,23 @@
 "use client";
 
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
   const authContext = useContext(AuthContext);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter(); 
+  const router = useRouter();
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (authContext) {
+      setIsAuthenticated(authContext.isAuthenticated);
+    }
+  }, [authContext?.isAuthenticated]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,12 +28,39 @@ const LoginPage = () => {
       if (result.success) {
         router.push('/editor');
       } else {
-        setError(result.message);
+        setError(result.message || 'Erreur lors de la connexion.');
       }
     } else {
       setError("Le contexte d'authentification est introuvable.");
     }
   };
+
+  const handleLogout = async () => {
+    if (authContext && authContext.logout) {
+      const result = await authContext.logout();
+      if (result.success) {
+        router.push('/login');
+      } else {
+        setError(result.message || "Erreur lors de la déconnexion.");
+      }
+    }
+  };
+
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+          <h1 className="text-2xl font-bold mb-6 text-center">Vous êtes déjà connecté</h1>
+          <button
+            onClick={handleLogout}
+            className="w-full py-2 px-4 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          >
+            Se déconnecter
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

@@ -111,7 +111,6 @@ class UserView(APIView):
         })
 
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         response = Response({"detail": "Déconnexion réussie"}, status=status.HTTP_200_OK)
