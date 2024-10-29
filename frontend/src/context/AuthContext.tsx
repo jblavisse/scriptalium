@@ -1,7 +1,17 @@
 "use client";
 
 import { createContext, useState, useEffect, ReactNode } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+
+// Définition de l'interface User directement dans AuthContext.tsx
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  // Ajoutez d'autres champs selon vos besoins
+}
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -16,7 +26,7 @@ interface AuthResponse {
 }
 
 interface AuthContextProps {
-  user: any;
+  user: User | null;
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<AuthResponse>;
   logout: () => Promise<AuthResponse>;
@@ -25,19 +35,26 @@ interface AuthContextProps {
 export const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const login = async (username: string, password: string): Promise<AuthResponse> => {
     try {
-      const response = await api.post('/api/auth/login/', { username, password });
+      const response = await api.post<{ user: User }>('/api/auth/login/', { username, password });
       setUser(response.data.user);
       setIsAuthenticated(true);
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<{ detail: string }>;
+        return {
+          success: false,
+          message: axiosError.response?.data?.detail || 'Erreur de connexion',
+        };
+      }
       return {
         success: false,
-        message: error.response?.data?.detail || 'Erreur de connexion',
+        message: 'Erreur de connexion inconnue',
       };
     }
   };
@@ -48,28 +65,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
       setIsAuthenticated(false);
       return { success: true };
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        setUser(null);
-        setIsAuthenticated(false);
-        return { success: true };
-      } else {
-        console.error('Erreur de déconnexion', error);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<{ detail: string }>;
+        if (axiosError.response && axiosError.response.status === 401) {
+          setUser(null);
+          setIsAuthenticated(false);
+          return { success: true };
+        }
         return {
           success: false,
-          message: 'Erreur de déconnexion',
+          message: axiosError.response?.data?.detail || 'Erreur de déconnexion',
         };
       }
+      console.error('Erreur de déconnexion', error);
+      return {
+        success: false,
+        message: 'Erreur de déconnexion inconnue',
+      };
     }
   };
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await api.get('/api/auth/user/');
+        const response = await api.get<User>('/api/auth/user/');
         setUser(response.data);
         setIsAuthenticated(true);
-      } catch (error) {
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          console.error('Erreur lors de la récupération de l\'utilisateur:', error.response?.data);
+        }
         setUser(null);
         setIsAuthenticated(false);
       }
