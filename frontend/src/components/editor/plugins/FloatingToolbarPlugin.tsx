@@ -87,28 +87,23 @@ export default function FloatingToolbarPlugin() {
         const selection = $getSelection();
 
         if ($isRangeSelection(selection) && !selection.isCollapsed()) {
-          // Appliquer le format 'highlight' au texte sélectionné
           selection.formatText('highlight');
           console.log('Highlight format applied.');
 
-          // Obtenir le point de focus (fin de la sélection)
           const focus = selection.focus;
           const focusNode = focus.getNode();
           const focusOffset = focus.offset;
 
           if ($isTextNode(focusNode)) {
-            // Replier la sélection à la fin du TextNode
             selection.setTextNodeRange(focusNode, focusOffset, focusNode, focusOffset);
             console.log('Selection collapsed to end.');
           } else {
-            // focusNode n'est pas un TextNode, insérer un nouveau TextNode après
             const newTextNode = $createTextNode('');
             focusNode.insertAfter(newTextNode);
             selection.setTextNodeRange(newTextNode, 0, newTextNode, 0);
             console.log('New TextNode inserted and selection set.');
           }
 
-          // Désactiver le format 'highlight' actif en le basculant
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'highlight');
           console.log('Highlight format toggled off.');
         }
@@ -192,7 +187,7 @@ export default function FloatingToolbarPlugin() {
         if (!isMouseOverHighlightedText) {
           setIsToolbarVisible(false);
         }
-      }, 200); // Ajustez la durée du délai si nécessaire
+      }, 200);
     };
 
     toolbarElement.addEventListener('mouseover', handleToolbarMouseOver);
@@ -225,7 +220,6 @@ export default function FloatingToolbarPlugin() {
             onMouseOver={() => setIsMouseOverToolbar(true)}
             onMouseOut={() => setIsMouseOverToolbar(false)}
           >
-            {/* Ajoutez vos boutons ou contenus de la barre d'outils ici */}
             <button onClick={highlightText}>Highlight</button>
           </div>,
           document.body,

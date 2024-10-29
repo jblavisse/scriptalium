@@ -101,12 +101,12 @@ export default function LexicalEditor() {
 
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="editor-container flex flex-col w-[50vw] mx-auto bg-background rounded-lg shadow-lg relative">
+      <div className="editor-container flex flex-col w-full max-w-[90vw] sm:max-w-[50vw] mx-auto bg-background rounded-lg shadow-lg relative overflow-hidden">
         <ToolbarPlugin />
         <div className="editor-inner">
           <RichTextPlugin
             contentEditable={
-              <ContentEditable 
+              <ContentEditable
                 className="editor-input min-h-[75vh] max-h-[75vh] w-full overflow-y-auto focus:outline-none"
               />
             }
@@ -122,17 +122,18 @@ export default function LexicalEditor() {
           <SelectionPlugin onSelectionChange={setSelection} />
           {selection && (
             <div
-              className="selection-toolbar bg-white border border-gray-300 p-2 rounded shadow-lg flex space-x-2 absolute z-50 sm:max-w-[450px]"
+              className="selection-toolbar bg-white border border-gray-300 p-2 rounded shadow-lg flex flex-wrap space-x-2 absolute z-50 sm:max-w-[450px]"
               style={{
                 top: Math.min(selection.rect.bottom + window.scrollY - 30, window.innerHeight),
                 left: Math.min(selection.rect.left + window.scrollX - 300, window.innerWidth),
-              }}              
+              }}
             >
               <AnnotationForm
                 selectedText={selection.text}
                 startIndex={selection.startIndex}
                 endIndex={selection.endIndex}
-                onSelectionChange={setSelection} />
+                onSelectionChange={setSelection}
+              />
             </div>
           )}
         </div>

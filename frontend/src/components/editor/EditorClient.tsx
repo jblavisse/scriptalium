@@ -27,10 +27,9 @@ const EditorClient: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <h1 className="text-3xl text-red-700">Mon éditeur Lexical dans Next.js (TSX)</h1>
-      <LexicalEditor />
-    </div>
+    <div className="flex justify-center items-center min-h-screen">
+    <LexicalEditor />
+  </div>
   );
 };
 
