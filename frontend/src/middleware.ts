@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const secret = new TextEncoder().encode('vdjango-insecure-a2m#90dr8c&g+m15sxi7*0c!z4yzvy&^@)xpalh=bmv@e!winl'); 
+const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'vdjango-insecure-a2m#90dr8c&g+m15sxi7*0c!z4yzvy&^@)xpalh=bmv@e!winl'); 
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('access_token')?.value;
@@ -25,7 +26,7 @@ async function handleRefreshToken(request: NextRequest) {
 
   if (refreshToken) {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/token/refresh/', {
+      const response = await fetch(`${API_URL}/api/auth/token/refresh/`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -42,7 +43,7 @@ async function handleRefreshToken(request: NextRequest) {
 
         nextResponse.cookies.set('access_token', newAccessToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_USE_HTTPS === 'true',
           sameSite: 'lax',
           path: '/',
         });
@@ -52,6 +53,7 @@ async function handleRefreshToken(request: NextRequest) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
     } catch (error) {
+      console.error('Erreur lors du rafraîchissement du token:', error);
       return NextResponse.redirect(new URL('/login', request.url));
     }
   } else {
@@ -60,5 +62,5 @@ async function handleRefreshToken(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/editor/:path*', '/profile/:path*'],
+  matcher: ['/editor/:path*'],
 };
