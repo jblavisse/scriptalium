@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -11,38 +11,30 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  if (!authContext) {
+    return <p>Chargement...</p>;
+  }
 
-  useEffect(() => {
-    if (authContext) {
-      setIsAuthenticated(authContext.isAuthenticated);
-    }
-  }, [authContext?.isAuthenticated]);
+  const { isAuthenticated, login, logout } = authContext;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (authContext && authContext.login) {
-      const result = await authContext.login(username, password);
-      if (result.success) {
-        router.push('/editor');
-      } else {
-        setError(result.message || 'Erreur lors de la connexion.');
-      }
+    const result = await login(username, password);
+    if (result.success) {
+      router.push('/editor');
     } else {
-      setError("Le contexte d'authentification est introuvable.");
+      setError(result.message || 'Erreur lors de la connexion.');
     }
   };
 
   const handleLogout = async () => {
-    if (authContext && authContext.logout) {
-      const result = await authContext.logout();
-      if (result.success) {
-        router.push('/login');
-      } else {
-        setError(result.message || "Erreur lors de la déconnexion.");
-      }
+    const result = await logout();
+    if (result.success) {
+      router.push('/login');
+    } else {
+      setError(result.message || "Erreur lors de la déconnexion.");
     }
   };
 

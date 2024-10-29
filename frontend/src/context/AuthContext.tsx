@@ -62,7 +62,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   };
-  
 
   useEffect(() => {
     const fetchUser = async () => {
