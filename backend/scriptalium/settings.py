@@ -25,7 +25,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
-API_URL = config('API_URL', default='http://localhost:8000')
+API_URL = config('API_URL', default='http://localhost:8003')
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
