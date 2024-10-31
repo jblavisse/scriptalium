@@ -23,7 +23,7 @@ export default function ProjectList() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProject, setNewProject] = useState({ title: '', description: '' });
-  const [projectToDelete, setProjectToDelete] = useState<number | null>(null); // État pour la confirmation de suppression
+  const [projectToDelete, setProjectToDelete] = useState<number | null>(null);
   const router = useRouter();
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -76,7 +76,7 @@ export default function ProjectList() {
     try {
       await axios.delete(`${apiUrl}/projects/${id}/`);
       setProjects(projects.filter(project => project.id !== id));
-      setProjectToDelete(null); // Réinitialise l'état après suppression
+      setProjectToDelete(null);
     } catch (error) {
       console.error("Error deleting project", error);
     }
