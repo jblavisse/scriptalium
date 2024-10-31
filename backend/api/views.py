@@ -1,9 +1,9 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status,generics, permissions, viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from .models import Text, Annotation
-from .serializers import TextSerializer, AnnotationSerializer
+from .models import Text, Annotation, Project
+from .serializers import TextSerializer, AnnotationSerializer,ProjectSerializer
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
 
@@ -44,3 +44,21 @@ def add_annotation(request):
         annotation_serializer.save()
         return Response({'message': 'Annotation added', 'textId': text.id}, status=status.HTTP_201_CREATED)
     return Response(annotation_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ProjectListCreateView(generics.ListCreateAPIView):
+    queryset = Project.objects.all().order_by('-created_at')
+    serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class ProjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class ProjectViewSet(viewsets.ModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [permissions.AllowAny]
