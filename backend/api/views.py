@@ -1,22 +1,23 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework import viewsets, permissions, generics, status
+from rest_framework.decorators import api_view
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status,generics, permissions, viewsets
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Text, Annotation, Project
-from .serializers import TextSerializer, AnnotationSerializer,ProjectSerializer
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from .models import Text, Annotation
-from .serializers import TextSerializer, AnnotationSerializer, MyTokenObtainPairSerializer
+from .serializers import TextSerializer, AnnotationSerializer, ProjectSerializer, MyTokenObtainPairSerializer , UserSerializer
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
 from django.conf import settings
+from django.contrib.auth.models import User
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticated
+from django.middleware.csrf import get_token
 
+@api_view(['GET'])
 @ensure_csrf_cookie
 def get_csrf_token(request):
-    return JsonResponse({'detail': 'CSRF cookie set'})
+    csrf_token = get_token(request)
+    return Response({"csrfToken": csrf_token})
 
 @api_view(['POST'])
 def create_text(request):
@@ -52,23 +53,21 @@ def add_annotation(request):
         return Response({'message': 'Annotation added', 'textId': text.id}, status=status.HTTP_201_CREATED)
     return Response(annotation_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ProjectListCreateView(generics.ListCreateAPIView):
-    queryset = Project.objects.all().order_by('-created_at')
+class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [] 
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return Project.objects.filter(user=user).order_by('-created_at')
+        return Project.objects.none()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-class ProjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [permissions.AllowAny]
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
@@ -78,27 +77,27 @@ class MyTokenObtainPairView(TokenObtainPairView):
             serializer.is_valid(raise_exception=True)
         except Exception:
             return Response({"detail": "Nom d'utilisateur ou mot de passe incorrect"}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        user = serializer.user
+
         token = serializer.validated_data
 
         response = Response({"detail": "Connexion réussie"}, status=status.HTTP_200_OK)
 
+        # Définir les cookies JWT
         response.set_cookie(
-            key='access_token',
+            key=settings.SIMPLE_JWT['AUTH_COOKIE'],
             value=token['access'],
-            httponly=True,
-            secure=not settings.DEBUG, 
-            samesite='Lax',
+            httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+            secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+            samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
             max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds(),
         )
 
         response.set_cookie(
-            key='refresh_token',
+            key=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'],
             value=token['refresh'],
-            httponly=True,
-            secure=not settings.DEBUG,  
-            samesite='Lax',
+            httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+            secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+            samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
             max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds(),
         )
 
@@ -110,26 +109,23 @@ class MyTokenRefreshView(TokenRefreshView):
             response = super().post(request, *args, **kwargs)
             if response.status_code == 200:
                 response.set_cookie(
-                    key='access_token',
+                    key=settings.SIMPLE_JWT['AUTH_COOKIE'],
                     value=response.data['access'],
-                    httponly=True,
-                    secure=not settings.DEBUG,
-                    samesite='Lax',
+                    httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                    secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                    samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
                     max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds(),
                 )
         except Exception:
             return Response({"detail": "Erreur de rafraîchissement du token"}, status=status.HTTP_401_UNAUTHORIZED)
         return response
 
-class UserView(APIView):
+class UserView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        return Response({
-            'username': user.username,
-            'email': user.email,
-        })
+    def get_object(self):
+        return self.request.user
 
 class LogoutView(APIView):
 
@@ -139,20 +135,10 @@ class LogoutView(APIView):
         response.delete_cookie('refresh_token')
         return response
 
-class ProjectListCreateView(generics.ListCreateAPIView):
-    queryset = Project.objects.all().order_by('-created_at')
+class UserProjectListView(generics.ListAPIView):
     serializer_class = ProjectSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-class ProjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [permissions.AllowAny]
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        return Project.objects.filter(user__id=user_id).order_by('-created_at')

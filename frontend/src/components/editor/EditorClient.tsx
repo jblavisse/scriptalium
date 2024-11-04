@@ -32,19 +32,29 @@ export default function EditorClient() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [notification, setNotification] = useState<NotificationState | null>(null)
+  const [csrfToken, setCsrfToken] = useState<string>('')
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
   useEffect(() => {
-    if (id) {
-      fetchProject(id as string)
-      getCsrfToken()
+    const initialize = async () => {
+      await getCsrfToken()
+      if (id) {
+        await fetchProject(id as string)
+      }
     }
+    initialize()
   }, [id])
 
   const getCsrfToken = async () => {
     try {
-      await axios.get(`${apiUrl}/api/get-csrf-token/`)
+      const response = await axios.get(`${apiUrl}/api/get-csrf-token/`, { withCredentials: true })
+      const csrfToken = response.data.csrfToken
+      setCsrfToken(csrfToken)
+      axios.defaults.headers.post['X-CSRFToken'] = csrfToken
+      axios.defaults.headers.put['X-CSRFToken'] = csrfToken
+      axios.defaults.headers.delete['X-CSRFToken'] = csrfToken
+      axios.defaults.withCredentials = true // Assurer que les cookies sont envoyés avec chaque requête
     } catch (error) {
       console.error('Erreur lors de l\'obtention du jeton CSRF', error)
     }
@@ -52,7 +62,7 @@ export default function EditorClient() {
 
   const fetchProject = async (projectId: string) => {
     try {
-      const response = await axios.get(`${apiUrl}/projects/${projectId}/`)
+      const response = await axios.get(`${apiUrl}/api/projects/${projectId}/`)
       setProject(response.data)
       setLoading(false)
     } catch (error) {
@@ -71,7 +81,12 @@ export default function EditorClient() {
         ...project,
         editor_content: content,
       }
-      const response = await axios.put(`${apiUrl}/projects/${id}/`, updatedProject)
+      const response = await axios.put(`${apiUrl}/api/projects/${id}/`, updatedProject, {
+        withCredentials: true,
+        headers: {
+          'X-CSRFToken': csrfToken,
+        },
+      })
       setProject(response.data)
       setNotification({ message: 'Projet sauvegardé avec succès', type: 'success' })
     } catch (error) {

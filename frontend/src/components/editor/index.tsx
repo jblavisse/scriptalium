@@ -87,7 +87,7 @@ const SaveButton: React.FC<{ onSave: (content: string) => void }> = ({ onSave })
   };
 
   return (
-    <Button onClick={handleSave} className="ml-auto mt-2">
+    <Button onClick={handleSave} className="mt-4 self-end">
       Sauvegarder
     </Button>
   );
@@ -111,9 +111,9 @@ const InitializeEditorState = ({ initialContent }: { initialContent: string }) =
 export default function LexicalEditor({ initialContent, onSave }: LexicalEditorProps) {
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="editor-container flex flex-col w-full max-w-[90vw] sm:max-w-[50vw] mx-auto bg-white rounded-lg shadow-lg relative overflow-hidden">
+      <div className="editor-container flex flex-col w-full max-w-[90vw] sm:max-w-[50vw] mx-auto bg-white rounded-lg shadow-lg relative overflow-hidden p-4">
         <ToolbarPlugin />
-        <div className="editor-inner">
+        <div className="editor-inner flex-1">
           <RichTextPlugin
             contentEditable={
               <ContentEditable
@@ -131,6 +131,8 @@ export default function LexicalEditor({ initialContent, onSave }: LexicalEditorP
           <HashtagPlugin />
         </div>
         <InitializeEditorState initialContent={initialContent} />
+      </div>
+      <div className="flex justify-end w-full max-w-[90vw] sm:max-w-[50vw] mx-auto mt-4">
         <SaveButton onSave={onSave} />
       </div>
     </LexicalComposer>
