@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -19,7 +17,6 @@ import { CodeNode, CodeHighlightNode } from '@lexical/code';
 import { MarkNode } from '@lexical/mark';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
-import SelectionPlugin from './plugins/SelectionPlugin';
 import { EditorThemeClasses } from 'lexical';
 import { Button } from '@/components/ui/button';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -27,6 +24,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 interface LexicalEditorProps {
   initialContent: string;
   onSave: (content: string) => void;
+  returnButton: React.ReactNode;
 }
 
 const theme: EditorThemeClasses = {
@@ -81,13 +79,16 @@ const SaveButton: React.FC<{ onSave: (content: string) => void }> = ({ onSave })
   const handleSave = () => {
     editor.getEditorState().read(() => {
       const json = editor.getEditorState().toJSON();
-      const content = JSON.stringify(json);  // Vous pouvez choisir de stocker en JSON ou en HTML
+      const content = JSON.stringify(json); 
       onSave(content);
     });
   };
 
   return (
-    <Button onClick={handleSave} className="mt-4 self-end">
+    <Button
+      onClick={handleSave}
+      className="bg-[#8B86BE] hover:bg-[#8B86BE] text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-transform duration-300 hover:scale-105 active:scale-95"
+    >
       Sauvegarder
     </Button>
   );
@@ -108,33 +109,37 @@ const InitializeEditorState = ({ initialContent }: { initialContent: string }) =
   return null;
 };
 
-export default function LexicalEditor({ initialContent, onSave }: LexicalEditorProps) {
+export default function LexicalEditor({ initialContent, onSave, returnButton }: LexicalEditorProps) {
   return (
-    <LexicalComposer initialConfig={editorConfig}>
-      <div className="editor-container flex flex-col w-full max-w-[90vw] sm:max-w-[50vw] mx-auto bg-white rounded-lg shadow-lg relative overflow-hidden p-4">
-        <ToolbarPlugin />
-        <div className="editor-inner flex-1">
-          <RichTextPlugin
-            contentEditable={
-              <ContentEditable
-                className="editor-input min-h-[75vh] max-h-[75vh] w-full overflow-y-auto focus:outline-none p-4"
-              />
-            }
-            placeholder={<div className="editor-placeholder p-4 text-gray-400">Commencez à écrire...</div>}
-            ErrorBoundary={LexicalErrorBoundary}
-          />
-          <HistoryPlugin />
-          <AutoFocusPlugin />
-          <ListPlugin />
-          <LinkPlugin />
-          <TablePlugin />
-          <HashtagPlugin />
+    <div className="w-full max-w-[90vw] sm:max-w-[50vw] mx-auto">
+      <LexicalComposer initialConfig={editorConfig}>
+        <div className="editor-container flex flex-col bg-white rounded-lg shadow-md border border-gray-200 p-4">
+          <ToolbarPlugin />
+          <div className="editor-inner flex-1 mt-2">
+            <RichTextPlugin
+              contentEditable={
+                <ContentEditable
+                  className="editor-input min-h-[60vh] max-h-[60vh] w-full overflow-y-auto focus:outline-none p-4"
+                />
+              }
+              placeholder={<div className="editor-placeholder p-4 text-gray-400">Commencez à écrire...</div>}
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+            <HistoryPlugin />
+            <AutoFocusPlugin />
+            <ListPlugin />
+            <LinkPlugin />
+            <TablePlugin />
+            <HashtagPlugin />
+          </div>
+          <InitializeEditorState initialContent={initialContent} />
         </div>
-        <InitializeEditorState initialContent={initialContent} />
-      </div>
-      <div className="flex justify-end w-full max-w-[90vw] sm:max-w-[50vw] mx-auto mt-4">
-        <SaveButton onSave={onSave} />
-      </div>
-    </LexicalComposer>
+        {/* Conteneur pour aligner les boutons */}
+        <div className="flex justify-center items-center mt-4 gap-4">
+          {returnButton}
+          <SaveButton onSave={onSave} />
+        </div>
+      </LexicalComposer>
+    </div>
   );
 }

@@ -1,57 +1,86 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
 
 export default function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const router = useRouter();
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
-  const handleLogin = async (e: { preventDefault: () => void; }) => {
-    e.preventDefault();
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
     try {
-      const response = await axios.post(`${apiUrl}/api/auth/login/`, { username, password }, { withCredentials: true });
+      const response = await axios.post(`${apiUrl}/api/auth/login/`, { username, password }, { withCredentials: true })
       if (response.status === 200) {
-        alert("Connexion réussie !");
-        router.push('/projects'); // Rediriger vers la page des projets
+        router.push('/projects')
       }
     } catch (error) {
-      console.error("Erreur lors de la connexion", error);
-      alert("Erreur lors de la connexion.");
+      console.error("Error during login", error)
+      alert("Error during login.")
+    } finally {
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <form onSubmit={handleLogin} className="bg-white p-6 rounded shadow-md">
-        <h2 className="text-2xl mb-4">Connexion</h2>
-        <div className="mb-4">
-          <label htmlFor="username" className="block text-gray-700">Nom d'utilisateur</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-gray-700">Mot de passe</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">Se connecter</button>
-      </form>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-100 to-purple-100">
+      <Card className="w-[380px] shadow-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
+          <CardDescription className="text-center">
+            Enter your credentials
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              type="text"
+              placeholder="Your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button 
+            className="w-full flex justify-center items-center" 
+            onClick={handleLogin} 
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className="mr-2 h-4 w-4 border-2 border-t-2 border-gray-500 rounded-full animate-spin"></span>
+                Logging in...
+              </>
+            ) : (
+              'Log in'
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
-  );
+  )
 }

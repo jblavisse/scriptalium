@@ -31,7 +31,6 @@ export default function ProjectList() {
   const [newProject, setNewProject] = useState({ title: '', description: '' });
   const [projectToDelete, setProjectToDelete] = useState<number | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [csrfToken, setCsrfToken] = useState<string>('');
   const router = useRouter();
 
@@ -45,45 +44,34 @@ export default function ProjectList() {
     fetchData();
   }, []);
 
-  // Fonction pour obtenir le token CSRF
   const getCsrfToken = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/get-csrf-token/`, { withCredentials: true });
-      console.log("CSRF Token Response:", response.data); // Log
       const csrfToken = response.data.csrfToken;
       setCsrfToken(csrfToken);
-      // Configurer les en-têtes par défaut d'Axios
       axios.defaults.headers.post['X-CSRFToken'] = csrfToken;
       axios.defaults.headers.put['X-CSRFToken'] = csrfToken;
       axios.defaults.headers.delete['X-CSRFToken'] = csrfToken;
     } catch (error) {
-      console.error('Erreur lors de l\'obtention du token CSRF', error);
-      setError("Erreur lors de l'obtention du token CSRF.");
-    }
-  };
-
-  // Fonction pour obtenir les informations de l'utilisateur
-  const getUser = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/auth/user/`, { withCredentials: true });
-      console.log("User Response:", response.data); // Log de l'utilisateur
-      if (!response.data.id) {
-        console.error("User ID is undefined or null");
-        setError("ID utilisateur invalide.");
-        return;
-      }
-      setUser(response.data);
-      fetchProjects(); // Appeler sans passer user.id
-    } catch (error) {
-      console.error('Erreur lors de la récupération de l\'utilisateur', error);
-      setError("Vous devez être connecté pour voir vos projets.");
-      alert("Vous devez être connecté pour voir vos projets.");
       router.push('/login');
     }
   };
 
-  // Fonction pour récupérer les projets filtrés par utilisateur (backend filtre déjà)
-  const fetchProjects = async () => { // Retirer userId
+  const getUser = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/api/auth/user/`, { withCredentials: true });
+      if (!response.data.id) {
+        router.push('/login');
+        return;
+      }
+      setUser(response.data);
+      fetchProjects();
+    } catch (error) {
+      router.push('/login');
+    }
+  };
+
+  const fetchProjects = async () => {
     try {
       const response = await axios.get(`${apiUrl}/api/projects/`, {
         withCredentials: true,
@@ -91,12 +79,9 @@ export default function ProjectList() {
           'X-CSRFToken': csrfToken,
         },
       });
-      console.log("Projects Response:", response.data); // Log des projets récupérés
       setProjects(response.data);
     } catch (error) {
-      console.error("Erreur lors de la récupération des projets", error);
-      setError("Erreur lors de la récupération des projets.");
-      alert("Erreur lors de la récupération des projets.");
+
     }
   };
 
@@ -117,20 +102,13 @@ export default function ProjectList() {
             'X-CSRFToken': csrfToken,
           },
         });
-        console.log("Create Project Response:", response.data); // Log
         setProjects([...projects, response.data]);
         setNewProject({ title: '', description: '' });
         closeModal();
         router.push(`/editor/${response.data.id}`);
-        alert("Projet créé avec succès !");
       } catch (error) {
-        console.error("Erreur lors de la création du projet", error);
-        setError("Erreur lors de la création du projet.");
-        alert("Erreur lors de la création du projet.");
       }
     } else {
-      setError("Veuillez remplir tous les champs.");
-      alert("Veuillez remplir tous les champs.");
     }
   };
 
@@ -142,14 +120,9 @@ export default function ProjectList() {
           'X-CSRFToken': csrfToken,
         },
       });
-      console.log(`Project with ID ${id} deleted`); // Log
       setProjects(projects.filter(project => project.id !== id));
       setProjectToDelete(null);
-      alert("Projet supprimé avec succès !");
     } catch (error) {
-      console.error("Erreur lors de la suppression du projet", error);
-      setError("Erreur lors de la suppression du projet.");
-      alert("Erreur lors de la suppression du projet.");
     }
   };
 
@@ -170,13 +143,6 @@ export default function ProjectList() {
       <main className="flex-grow p-6">
         <div className="container mx-auto flex flex-col items-center">
           
-          {/* Affichage des messages d'erreur */}
-          {error && (
-            <div className="mb-4 p-4 bg-red-100 text-red-700 rounded">
-              {error}
-            </div>
-          )}
-
           {/* Conteneur des cartes au centre */}
           <div className="w-full md:w-2/3 space-y-6 max-h-[80vh] overflow-y-auto">
             {projects.map(project => (
@@ -211,7 +177,7 @@ export default function ProjectList() {
         >
           <PlusCircle className="mr-2 h-5 w-5" /> Créer un Projet
         </Button>
-        <p className="text-sm text-gray-600">© 2024 Votre Nom</p>
+        <p className="text-sm text-gray-600">© 2024 Scriptalium</p>
       </footer>
 
       {/* Modal pour la création de projet */}
