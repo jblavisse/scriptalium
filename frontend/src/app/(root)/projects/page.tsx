@@ -19,18 +19,11 @@ interface Project {
   updated_at: string;
 }
 
-interface User {
-  id: number;
-  username: string;
-  email: string;
-}
-
 export default function ProjectList() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProject, setNewProject] = useState({ title: '', description: '' });
   const [projectToDelete, setProjectToDelete] = useState<number | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   const [csrfToken, setCsrfToken] = useState<string>('');
   const router = useRouter();
 
@@ -38,52 +31,36 @@ export default function ProjectList() {
 
   useEffect(() => {
     const fetchData = async () => {
-      await getCsrfToken();
-      await getUser();
+      try {
+        // Obtenir le token CSRF
+        const csrfResponse = await axios.get(`${apiUrl}/api/get-csrf-token/`, { withCredentials: true });
+        const csrfToken = csrfResponse.data.csrfToken;
+        setCsrfToken(csrfToken);
+        axios.defaults.headers.post['X-CSRFToken'] = csrfToken;
+        axios.defaults.headers.put['X-CSRFToken'] = csrfToken;
+        axios.defaults.headers.delete['X-CSRFToken'] = csrfToken;
+
+        // Obtenir l'utilisateur
+        const userResponse = await axios.get(`${apiUrl}/api/auth/user/`, { withCredentials: true });
+        if (!userResponse.data.id) {
+          router.push('/login');
+          return;
+        }
+
+        // Obtenir les projets
+        const projectsResponse = await axios.get(`${apiUrl}/api/projects/`, {
+          withCredentials: true,
+          headers: {
+            'X-CSRFToken': csrfToken,
+          },
+        });
+        setProjects(projectsResponse.data);
+      } catch (error) {
+        router.push('/login');
+      }
     };
     fetchData();
-  }, []);
-
-  const getCsrfToken = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/get-csrf-token/`, { withCredentials: true });
-      const csrfToken = response.data.csrfToken;
-      setCsrfToken(csrfToken);
-      axios.defaults.headers.post['X-CSRFToken'] = csrfToken;
-      axios.defaults.headers.put['X-CSRFToken'] = csrfToken;
-      axios.defaults.headers.delete['X-CSRFToken'] = csrfToken;
-    } catch (error) {
-      router.push('/login');
-    }
-  };
-
-  const getUser = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/auth/user/`, { withCredentials: true });
-      if (!response.data.id) {
-        router.push('/login');
-        return;
-      }
-      setUser(response.data);
-      fetchProjects();
-    } catch (error) {
-      router.push('/login');
-    }
-  };
-
-  const fetchProjects = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/api/projects/`, {
-        withCredentials: true,
-        headers: {
-          'X-CSRFToken': csrfToken,
-        },
-      });
-      setProjects(response.data);
-    } catch (error) {
-
-    }
-  };
+  }, [apiUrl, router]);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -107,8 +84,10 @@ export default function ProjectList() {
         closeModal();
         router.push(`/editor/${response.data.id}`);
       } catch (error) {
+        // Vous pouvez ajouter une gestion des erreurs ici
       }
     } else {
+      // Vous pouvez ajouter une validation ou une notification ici
     }
   };
 
@@ -123,6 +102,7 @@ export default function ProjectList() {
       setProjects(projects.filter(project => project.id !== id));
       setProjectToDelete(null);
     } catch (error) {
+      // Vous pouvez ajouter une gestion des erreurs ici
     }
   };
 
@@ -135,7 +115,7 @@ export default function ProjectList() {
   };
 
   if (!apiUrl) {
-    return <div className="text-red-500">Erreur : L'URL de l'API n'est pas définie.</div>;
+    return <div className="text-red-500">Erreur : L&apos;URL de l&apos;API n&apos;est pas définie.</div>;
   }
 
   return (
@@ -157,7 +137,7 @@ export default function ProjectList() {
                     className="flex items-center text-white bg-[#8B86BE] hover:bg-opacity-90 font-semibold py-2 px-4 rounded shadow transition duration-200 ease-in-out"
                     onClick={() => handleReadMore(project.id)}
                   >
-                    Accéder à l'Éditeur
+                    Accéder à l&apos;Éditeur
                     <ExternalLink className="h-4 w-4 ml-2" />
                   </button>
                   <Button variant="ghost" size="icon" onClick={() => confirmDelete(project.id)}>

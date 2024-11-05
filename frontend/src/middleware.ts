@@ -7,14 +7,14 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'vdjango-insec
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function middleware(request: NextRequest) {
-  const token = request.cookies.get('access_token')?.value;
+  const accessToken = request.cookies.get('access_token')?.value;
 
-  if (!token) {
+  if (!accessToken) {
     return await handleRefreshToken(request);
   }
 
   try {
-    await jwtVerify(token, secret);
+    await jwtVerify(accessToken, secret);
     return NextResponse.next();
   } catch (err) {
     return await handleRefreshToken(request);
@@ -31,6 +31,7 @@ async function handleRefreshToken(request: NextRequest) {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': 'csrftoken',
         },
         body: JSON.stringify({ refresh: refreshToken }),
       });
@@ -43,17 +44,19 @@ async function handleRefreshToken(request: NextRequest) {
 
         nextResponse.cookies.set('access_token', newAccessToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_USE_HTTPS === 'true',
+          secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
           path: '/',
         });
 
         return nextResponse;
       } else {
+        const errorData = await response.json();
+        console.error('Erreur lors du rafraîchissement du token:', errorData);
         return NextResponse.redirect(new URL('/login', request.url));
       }
     } catch (error) {
-      console.error('Erreur lors du rafraîchissement du token:', error);
+      console.error('Erreur lors du rafraîchissement du token (catch):', error);
       return NextResponse.redirect(new URL('/login', request.url));
     }
   } else {
@@ -62,5 +65,5 @@ async function handleRefreshToken(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/editor/[id]:path*'],
+  matcher: ['/editor/:path*'],
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
@@ -87,7 +87,7 @@ const SaveButton: React.FC<{ onSave: (content: string) => void }> = ({ onSave })
   return (
     <Button
       onClick={handleSave}
-      className="bg-[#8B86BE] hover:bg-[#8B86BE] text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-transform duration-300 hover:scale-105 active:scale-95"
+      className="bg-[#ECB761] hover:bg-[#ECB761] text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-transform duration-300 hover:scale-105 active:scale-95"
     >
       Sauvegarder
     </Button>
@@ -111,7 +111,7 @@ const InitializeEditorState = ({ initialContent }: { initialContent: string }) =
 
 export default function LexicalEditor({ initialContent, onSave, returnButton }: LexicalEditorProps) {
   return (
-    <div className="w-full max-w-[90vw] sm:max-w-[50vw] mx-auto">
+    <div className="w-full max-w-[100vw] md:max-w-[80vw] lg:max-w-[70vw] mx-auto">
       <LexicalComposer initialConfig={editorConfig}>
         <div className="editor-container flex flex-col bg-white rounded-lg shadow-md border border-gray-200 p-4">
           <ToolbarPlugin />

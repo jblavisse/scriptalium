@@ -32,55 +32,57 @@ export default function Login() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-100 to-purple-100">
-      <Card className="w-[380px] shadow-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
-          <CardDescription className="text-center">
-            Enter your credentials
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              type="text"
-              placeholder="Your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button 
-            className="w-full flex justify-center items-center" 
-            onClick={handleLogin} 
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <span className="mr-2 h-4 w-4 border-2 border-t-2 border-gray-500 rounded-full animate-spin"></span>
-                Logging in...
-              </>
-            ) : (
-              'Log in'
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+<div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-[#8B86BE] to-[#86ABBA]">
+  <Card className="w-[450px] max-w-[90vw] shadow-md bg-white rounded-lg border border-gray-200">
+    <CardHeader className="space-y-1">
+      <CardTitle className="text-2xl font-bold text-center ">Login</CardTitle>
+      <CardDescription className="text-center text-gray-600">
+        Enter your credentials
+      </CardDescription>
+    </CardHeader>
+    <CardContent className="grid gap-4">
+      <div className="grid gap-2">
+        <Label htmlFor="username">Username</Label>
+        <Input
+          id="username"
+          type="text"
+          placeholder="Your username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          className="border-gray-300 focus:border-[#ECB761] focus:ring-[#ECB761]"
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          type="password"
+          placeholder="Your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="border-gray-300 focus:border-[#ECB761] focus:ring-[#ECB761]"
+        />
+      </div>
+    </CardContent>
+    <CardFooter>
+      <Button 
+        className="w-full flex justify-center items-center bg-[#ECB761] hover:bg-[#DEB0BD] text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-transform duration-300 hover:scale-105 active:scale-95" 
+        onClick={handleLogin} 
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <>
+            <span className="mr-2 h-4 w-4 border-2 border-t-2 border-white rounded-full animate-spin"></span>
+            Logging in...
+          </>
+        ) : (
+          'Log in'
+        )}
+      </Button>
+    </CardFooter>
+  </Card>
+</div>
   )
 }
