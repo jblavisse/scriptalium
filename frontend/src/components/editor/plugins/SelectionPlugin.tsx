@@ -1,7 +1,10 @@
-// SelectionPlugin.tsx
+import { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useEffect, useState } from 'react';
-import HighlightPlugin from './Highlightplugin';
+import {
+  $getSelection,
+  $isRangeSelection,
+  TextNode,
+} from 'lexical';
 
 interface SelectionInfo {
   text: string;
@@ -10,68 +13,91 @@ interface SelectionInfo {
   endIndex: number;
 }
 
-interface SelectionPluginProps {
+interface Props {
   onSelectionChange: (selection: SelectionInfo | null) => void;
 }
 
-const SelectionPlugin: React.FC<SelectionPluginProps> = ({ onSelectionChange }) => {
+export default function SelectionPlugin({ onSelectionChange }: Props) {
   const [editor] = useLexicalComposerContext();
-  const [isHighlighted, setIsHighlighted] = useState(false);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!(event.target as HTMLElement).closest('.selection-toolbar')) {
-        onSelectionChange(null);
-        setIsHighlighted(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [onSelectionChange]);
 
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
-        const selection = window.getSelection();
+        const selection = $getSelection();
 
-        if (!selection || selection.rangeCount === 0) {
+        if (!$isRangeSelection(selection)) {
+          console.log('Selection is not a RangeSelection');
           onSelectionChange(null);
-          setIsHighlighted(false);
           return;
         }
 
-        const selectedText = selection.toString();
+        const selectedText = selection.getTextContent();
+        console.log('Selected Text:', selectedText);
 
-        if (selectedText.trim().length > 0) {
-          const range = selection.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
+        if (selectedText.trim() !== '') {
+          const anchor = selection.anchor;
+          const focus = selection.focus;
 
-          const rootElement = editor.getRootElement();
-          const fullText = rootElement?.textContent || '';
-          const startIndex = fullText.indexOf(selectedText);
-          const endIndex = startIndex + selectedText.length;
+          const anchorNode = anchor.getNode();
+          const focusNode = focus.getNode();
 
-          onSelectionChange({
-            text: selectedText,
-            startIndex,
-            endIndex,
-            rect: rect,
-          });
+          console.log('Anchor Node:', anchorNode);
+          console.log('Focus Node:', focusNode);
 
-          setIsHighlighted(true); 
+          if (anchorNode instanceof TextNode && focusNode instanceof TextNode) {
+            let startIndex = Math.min(anchor.offset, focus.offset);
+            let endIndex = Math.max(anchor.offset, focus.offset);
+
+            console.log('Adjusted Start Index:', startIndex);
+            console.log('Adjusted End Index:', endIndex);
+
+            // Récupérer directement les nœuds DOM des TextNodes
+            const anchorDOM = editor.getElementByKey(anchorNode.getKey()) as HTMLElement | null;
+            const focusDOM = editor.getElementByKey(focusNode.getKey()) as HTMLElement | null;
+
+            if (anchorDOM && focusDOM) {
+              const anchorTextNode = anchorDOM.firstChild as Text | null;
+              const focusTextNode = focusDOM.firstChild as Text | null;
+
+              if (anchorTextNode && focusTextNode) {
+                const range = document.createRange();
+
+                if (anchorNode.isBefore(focusNode) || anchorNode === focusNode) {
+                  range.setStart(anchorTextNode, startIndex);
+                  range.setEnd(focusTextNode, endIndex);
+                } else {
+                  range.setStart(focusTextNode, endIndex);
+                  range.setEnd(anchorTextNode, startIndex);
+                }
+
+                const rect = range.getBoundingClientRect();
+                console.log('Selection Rect:', rect);
+
+                onSelectionChange({
+                  text: selectedText,
+                  rect: rect,
+                  startIndex,
+                  endIndex,
+                });
+              } else {
+                console.warn('Text nodes not found in anchor or focus children.');
+                onSelectionChange(null);
+              }
+            } else {
+              console.warn('Anchor DOM or Focus DOM is null');
+              onSelectionChange(null);
+            }
+          } else {
+            console.warn('Anchor Node or Focus Node is not a TextNode');
+            onSelectionChange(null);
+          }
         } else {
+          console.log('Selected Text is empty or whitespace');
           onSelectionChange(null);
-          setIsHighlighted(false); 
         }
       });
     });
   }, [editor, onSelectionChange]);
 
-  return <HighlightPlugin isHighlighted={isHighlighted} />;
-};
-
-export default SelectionPlugin;
+  return null;
+}
