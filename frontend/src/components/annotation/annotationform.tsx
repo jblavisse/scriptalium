@@ -1,98 +1,63 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { useSubmitAnnotation } from '../editor/hooks/useSubmitAnnotation';
-
-interface SelectionInfo {
-  text: string;
-  rect: DOMRect;
-  startIndex: number;
-  endIndex: number;
-}
 
 interface AnnotationFormProps {
-  selectedText: string | null;
-  startIndex: number;
-  endIndex: number;
-  onSelectionChange: (selection: SelectionInfo | null) => void;
+  selectedText: string;
+  onSubmit: (commentText: string) => void;
+  onCancel: () => void;
+  position: {
+    top: number;
+    left: number;
+  };
 }
 
-const AnnotationForm: React.FC<AnnotationFormProps> = ({
+export default function AnnotationForm({
   selectedText,
-  startIndex,
-  endIndex,
-  onSelectionChange,
-}) => {
-  const { submitAnnotation } = useSubmitAnnotation();
+  onSubmit,
+  onCancel,
+  position,
+}: AnnotationFormProps) {
+  const [commentText, setCommentText] = useState('');
 
-  const [formData, setFormData] = useState({
-    title: '',
-    description: ''
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (selectedText) {
-      try {
-        await submitAnnotation(formData, selectedText, startIndex, endIndex);
-        alert('Annotation ajoutée avec succès');
-        onSelectionChange(null);
-      } catch (error) {
-        alert('Erreur lors de l\'ajout de l\'annotation');
-      }
-    } else {
-      alert('Aucun texte sélectionné');
+    if (commentText.trim() !== '') {
+      onSubmit(commentText);
+      setCommentText('');
     }
   };
 
   return (
-    <div className="sm:max-w-[425px]">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium">Ajouter une annotation :</h2>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <div className="grid gap-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Titre</Label>
-            <Input
-              id="title"
-              name="title"
-              placeholder="Titre"
-              value={formData.title}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              placeholder="Description de l'annotation"
-              value={formData.description}
-              onChange={handleInputChange}
-            />
-          </div>
-        </div>
-        <div className="flex justify-between">
-          <Button variant="outline" type="button" onClick={() => onSelectionChange(null)}>
-            Annuler
-          </Button>
-          <Button type="submit">Valider</Button>
+    <div
+      className="absolute bg-white border border-gray-300 rounded shadow-lg p-4 z-10"
+      style={{ top: position.top, left: position.left }}
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-2 annotation-form">
+        <label className="text-sm">
+          Comment for: <strong>{selectedText}</strong>
+        </label>
+        <textarea
+          className="border p-2 rounded"
+          placeholder="Enter your comment..."
+          value={commentText}
+          onChange={(e) => setCommentText(e.target.value)}
+          required
+        />
+        <div className="flex justify-end space-x-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Add Comment
+          </button>
         </div>
       </form>
     </div>
   );
-};
-
-export default AnnotationForm;
+}
