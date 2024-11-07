@@ -38,7 +38,6 @@ const SelectionPlugin: React.FC<SelectionPluginProps> = ({ onSelectionChange }) 
       editorState.read(() => {
         const selection = window.getSelection();
 
-        // Vérifiez que 'selection' n'est pas null et que 'rangeCount' est défini
         if (!selection || selection.rangeCount === 0) {
           onSelectionChange(null);
           setIsHighlighted(false);

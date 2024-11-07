@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Text, Annotation
+from .models import Text, Annotation , Project
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
 
@@ -23,3 +23,13 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['id', 'user', 'title', 'description', 'editor_content', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']

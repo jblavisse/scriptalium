@@ -1,95 +1,88 @@
-"use client";
+'use client'
 
-import { useState, useContext } from 'react';
-import { AuthContext } from '../../../context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
 
-const LoginPage = () => {
-  const authContext = useContext(AuthContext);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter();
+export default function Login() {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
-  if (!authContext) {
-    return <p>Chargement...</p>;
-  }
-
-  const { isAuthenticated, login, logout } = authContext;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    const result = await login(username, password);
-    if (result.success) {
-      router.push('/editor');
-    } else {
-      setError(result.message || 'Erreur lors de la connexion.');
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    try {
+      const response = await axios.post(`${apiUrl}/api/auth/login/`, { username, password }, { withCredentials: true })
+      if (response.status === 200) {
+        router.push('/projects')
+      }
+    } catch (error) {
+      console.error("Error during login", error)
+      alert("Error during login.")
+    } finally {
+      setIsLoading(false)
     }
-  };
-
-  const handleLogout = async () => {
-    const result = await logout();
-    if (result.success) {
-      router.push('/login');
-    } else {
-      setError(result.message || "Erreur lors de la déconnexion.");
-    }
-  };
-
-  if (isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-          <h1 className="text-2xl font-bold mb-6 text-center">Vous êtes déjà connecté</h1>
-          <button
-            onClick={handleLogout}
-            className="w-full py-2 px-4 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-          >
-            Se déconnecter
-          </button>
-        </div>
-      </div>
-    );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h1 className="text-2xl font-bold mb-6 text-center">Connexion</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <input
-              type="text"
-              placeholder="Nom d'utilisateur"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Se connecter
-          </button>
-        </form>
+<div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-[#8B86BE] to-[#86ABBA]">
+  <Card className="w-[450px] max-w-[90vw] shadow-md bg-white rounded-lg border border-gray-200">
+    <CardHeader className="space-y-1">
+      <CardTitle className="text-2xl font-bold text-center ">Login</CardTitle>
+      <CardDescription className="text-center text-gray-600">
+        Enter your credentials
+      </CardDescription>
+    </CardHeader>
+    <CardContent className="grid gap-4">
+      <div className="grid gap-2">
+        <Label htmlFor="username">Username</Label>
+        <Input
+          id="username"
+          type="text"
+          placeholder="Your username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          className="border-gray-300 focus:border-[#ECB761] focus:ring-[#ECB761]"
+        />
       </div>
-    </div>
-  );
-};
-
-export default LoginPage;
+      <div className="grid gap-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          type="password"
+          placeholder="Your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="border-gray-300 focus:border-[#ECB761] focus:ring-[#ECB761]"
+        />
+      </div>
+    </CardContent>
+    <CardFooter>
+      <Button 
+        className="w-full flex justify-center items-center bg-[#ECB761] hover:bg-[#DEB0BD] text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-transform duration-300 hover:scale-105 active:scale-95" 
+        onClick={handleLogin} 
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <>
+            <span className="mr-2 h-4 w-4 border-2 border-t-2 border-white rounded-full animate-spin"></span>
+            Logging in...
+          </>
+        ) : (
+          'Log in'
+        )}
+      </Button>
+    </CardFooter>
+  </Card>
+</div>
+  )
+}

@@ -159,7 +159,10 @@ export default function ToolbarPlugin() {
   }, [editor]);
 
   return (
-    <div className="toolbar flex items-center justify-center px-6 py-4 border-b space-x-2 shadow-[0px_1px_20px_1px_#00000024]" ref={toolbarRef}>
+      <div
+        className="toolbar flex flex-wrap items-center justify-center px-2 py-2 sm:px-6 sm:py-4 border-b gap-2 shadow"
+        ref={toolbarRef}
+      >
       {/* Undo/Redo Buttons */}
       <Button
         variant="ghost"
