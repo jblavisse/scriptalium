@@ -14,4 +14,5 @@ export interface SidebarComment {
   id: string;
   text: string;
   commentText: string;
+  uuid: string;
 }

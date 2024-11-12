@@ -84,8 +84,6 @@ class CommentNode extends ElementNode {
     writable.__commentInstance = commentInstance;
   }
 
-  // Autres méthodes...
-
   static importJSON(serializedNode: any): CommentNode {
     const { uuid, textContent, comments } = serializedNode;
     return new CommentNode({ uuid, textContent, comments });

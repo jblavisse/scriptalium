@@ -1,3 +1,4 @@
+// CommentsPlugin.tsx
 import React, { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
@@ -12,11 +13,15 @@ import {
   TextNode,
   ElementNode,
   $isTextNode,
+  $getRoot,
+  LexicalNode,
+  $isElementNode,
 } from 'lexical';
 import CommentNode, { $createCommentNode, $isCommentNode } from '../../annotation/CommentNode';
 import { EditorCommentInstance } from '../../annotation/type'; 
 
 export const ADD_COMMENT_COMMAND = createCommand<{ commentInstance: EditorCommentInstance }>('ADD_COMMENT_COMMAND');
+export const REMOVE_COMMENT_COMMAND = createCommand<{ uuid: string }>('REMOVE_COMMENT_COMMAND');
 
 export default function CommentsPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -81,8 +86,42 @@ export default function CommentsPlugin() {
       COMMAND_PRIORITY_LOW
     );
 
+    const removeRemoveCommand = editor.registerCommand(
+      REMOVE_COMMENT_COMMAND,
+      (payload) => {
+        editor.update(() => {
+          const { uuid } = payload;
+          const root = $getRoot();
+
+          // Parcours récursif des nœuds à partir de la racine
+          function traverseNodes(node: LexicalNode) {
+            if ($isCommentNode(node)) {
+              const nodeUuid = node.getComment().uuid;
+              console.log(`Found CommentNode with UUID: ${nodeUuid}`);
+              if (nodeUuid === uuid) {
+                node.remove();
+                console.log(`Comment with UUID ${uuid} removed successfully.`);
+              }
+            }
+
+            if ($isElementNode(node)) {
+              const children = node.getChildren();
+              for (const child of children) {
+                traverseNodes(child);
+              }
+            }
+          }
+
+          traverseNodes(root);
+        });
+        return true;
+      },
+      COMMAND_PRIORITY_LOW
+    );
+
     return () => {
       removeCommand();
+      removeRemoveCommand();
     };
   }, [editor]);
 
