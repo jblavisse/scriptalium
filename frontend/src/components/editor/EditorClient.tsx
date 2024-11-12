@@ -7,6 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Notification } from '../notification/Notification';
 import { NavbarComponent } from "@/components/ui/navbar";
+import { Footer } from '@/components/ui/footer';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/index'), { ssr: false });
 
@@ -152,6 +153,7 @@ export default function EditorClient() {
           />
         )}
       </div>
+      <Footer />
     </div>
   );
 }

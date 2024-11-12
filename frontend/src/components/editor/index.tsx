@@ -146,7 +146,7 @@ const EditorWrapper: React.FC<EditorWrapperProps> = ({
   return (
 <div className="flex flex-col lg:flex-row w-full h-full">
   <div className="flex-1 overflow-hidden">
-    <div className="editor-container flex flex-col bg-white rounded-lg shadow-md border border-gray-200 p-4 w-full h-5/6 max-w-[1200px] mx-auto max-h-[80vh]">
+    <div className="editor-container flex flex-col bg-white rounded-lg shadow-md border border-gray-200 p-4 w-full h-5/6 max-w-[1200px] mx-auto max-h-[50vh] sm:max-h-[60vh] lg:max-h-[80vh]">
       <ToolbarPlugin />
       <div className="editor-inner flex-1 mt-2 overflow-auto max-h-[70vh]">
         <RichTextPlugin
@@ -203,7 +203,7 @@ const EditorWrapper: React.FC<EditorWrapperProps> = ({
 </div>
 
   </div>
-  <div className="w-full lg:w-[300px] border-t lg:border-t-0 lg:border-l overflow-auto h-auto lg:h-[calc(100vh-12rem)] max-h-[calc(100vh-12rem)] flex flex-col">
+  <div className="w-full lg:w-[300px] border-t lg:border-t-0 lg:border-l overflow-auto h-auto lg:h-[calc(80vh)] max-h-[calc(80vh)] flex flex-col">
     <div className="p-4 flex-1 overflow-auto">
       <h2 className="font-semibold mb-4">Commentaires</h2>
       {comments.map((comment) => (

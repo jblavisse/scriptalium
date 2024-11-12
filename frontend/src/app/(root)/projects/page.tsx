@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { NavbarComponent } from "@/components/ui/navbar"; // Importation correcte de la navbar
+import { NavbarComponent } from "@/components/ui/navbar";
+import { Footer } from '@/components/ui/footer';
 
 interface Project {
   id: number;
@@ -147,17 +148,15 @@ export default function ProjectList() {
           </div>
         </div>
       </main>
-      
-      <footer className="p-6 bg-white text-center">
+      <div className="text-center">
         <Button 
           onClick={openModal} 
           className="mb-4 px-6 py-3 font-semibold text-black bg-[#CBD690] hover:bg-[#B8C777] hover:shadow-lg hover:scale-105 rounded shadow transition duration-300 ease-in-out"
         >
           <PlusCircle className="mr-2 h-5 w-5" /> Créer un Projet
         </Button>
-        <p className="text-sm text-gray-600">© 2024 Scriptalium</p>
-      </footer>
-
+      </div>
+      <Footer />
       {/* Modal pour la création de projet */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
