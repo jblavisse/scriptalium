@@ -26,7 +26,6 @@ import CommentsCollectorPlugin from '../editor/plugins/CommentsCollectorPlugin';
 import SelectionPlugin from '../editor/plugins/SelectionPlugin';
 import AnnotationForm from '../annotation/annotationform';
 import { v4 as uuidv4 } from 'uuid';
-import { Sidebar, SidebarContent, SidebarProvider } from "@/components/ui/sidebar";
 import CommentNode from '../annotation/CommentNode';
 
 interface LexicalEditorProps {
@@ -90,17 +89,15 @@ interface SelectionInfo {
 
 const LexicalEditor: React.FC<LexicalEditorProps> = ({ initialContent, onSave, returnButton }) => {
   return (
-    <SidebarProvider>
-      <div className="flex w-full">
-        <LexicalComposer initialConfig={editorConfig}>
-          <EditorWrapper
-            initialContent={initialContent}
-            onSave={onSave}
-            returnButton={returnButton}
-          />
-        </LexicalComposer>
-      </div>
-    </SidebarProvider>
+    <div className="flex w-full">
+      <LexicalComposer initialConfig={editorConfig}>
+        <EditorWrapper
+          initialContent={initialContent}
+          onSave={onSave}
+          returnButton={returnButton}
+        />
+      </LexicalComposer>
+    </div>
   );
 };
 
@@ -147,79 +144,91 @@ const EditorWrapper: React.FC<EditorWrapperProps> = ({
   };
 
   return (
-    <div className="flex w-full">
-      <div className="flex-1">
-        <div className="editor-container flex flex-col bg-white rounded-lg shadow-md border border-gray-200 p-6 w-full max-w-[1200px] mx-auto">
-          <ToolbarPlugin />
-          <div className="editor-inner flex-1 mt-4">
-            <RichTextPlugin
-              contentEditable={
-                <ContentEditable className="editor-input min-h-[70vh] max-h-[70vh] w-full overflow-y-auto focus:outline-none p-6 text-base" />
-              }
-              placeholder={<div className="editor-placeholder p-6 text-gray-400 text-base">Commencez à écrire...</div>}
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-            <HistoryPlugin />
-            <AutoFocusPlugin />
-            <ListPlugin />
-            <LinkPlugin />
-            <TablePlugin />
-            <HashtagPlugin />
-            <CommentsPlugin />
-            <CommentsCollectorPlugin
-              onCommentsChange={(editorCommentInstances: EditorCommentInstance[]) => {
-                const sidebarComments: SidebarComment[] = editorCommentInstances.map((instance) => ({
-                  id: instance.uuid,
-                  text: instance.textContent,
-                  commentText: instance.comments.map((comment) => comment.content).join(', '),
-                  uuid: ''
-                }));
-                setComments(sidebarComments);
-              }}
-            />
-            <SelectionPlugin onSelectionChange={setSelection} />
-            <InitializeEditorState initialContent={initialContent} />
-          </div>
-          {selection && (
-            <AnnotationForm
-              selectedText={selection.text}
-              onSubmit={handleAddComment}
-              onCancel={() => setSelection(null)}
-              position={{
-                top: selection.rect.bottom + window.scrollY + 10,
-                left: selection.rect.left + window.scrollX,
-              }}
-            />
-          )}
-          <div className="flex justify-center items-center mt-4 gap-4">
-            {returnButton}
-            <SaveButton onSave={onSave} />
-          </div>
-        </div>
+<div className="flex flex-col lg:flex-row w-full h-full">
+  <div className="flex-1 overflow-hidden">
+    <div className="editor-container flex flex-col bg-white rounded-lg shadow-md border border-gray-200 p-4 w-full h-5/6 max-w-[1200px] mx-auto max-h-[80vh]">
+      <ToolbarPlugin />
+      <div className="editor-inner flex-1 mt-2 overflow-auto max-h-[70vh]">
+        <RichTextPlugin
+          contentEditable={
+            <ContentEditable className="editor-input h-5/6 w-full focus:outline-none p-4 overflow-auto max-h-[60vh]" />
+          }
+          placeholder={
+            <div className="editor-placeholder p-6 text-gray-400">
+              Commencez à écrire...
+            </div>
+          }
+          ErrorBoundary={LexicalErrorBoundary}
+        />
+        <HistoryPlugin />
+        <AutoFocusPlugin />
+        <ListPlugin />
+        <LinkPlugin />
+        <TablePlugin />
+        <HashtagPlugin />
+        <CommentsPlugin />
+        <CommentsCollectorPlugin
+          onCommentsChange={(editorCommentInstances: EditorCommentInstance[]) => {
+            const sidebarComments: SidebarComment[] = editorCommentInstances.map(
+              (instance) => ({
+                id: instance.uuid,
+                text: instance.textContent,
+                commentText: instance.comments
+                  .map((comment) => comment.content)
+                  .join(', '),
+                uuid: '',
+              })
+            );
+            setComments(sidebarComments);
+          }}
+        />
+        <SelectionPlugin onSelectionChange={setSelection} />
+        <InitializeEditorState initialContent={initialContent} />
       </div>
-      <Sidebar className="w-[300px] max-h-[60vh] border-l" side="right">
-        <SidebarContent>
-          <div className="p-4">
-            <h2 className="font-semibold mb-4">Commentaires</h2>
-            {comments.map((comment) => (
-              <div key={comment.id} className="mb-4 p-3 bg-muted rounded-lg">
-                <p className="text-sm font-medium mb-1">{comment.text}</p>
-                <p className="text-sm text-muted-foreground">{comment.commentText}</p>
-                <button
-                  onClick={() => handleRemoveComment(comment.id)}
-                  className="mt-2 text-red-600 hover:text-red-800"
-                >
-                  Supprimer
-                </button>
-              </div>
-            ))}
-            {comments.length === 0 && (
-              <p className="text-sm text-muted-foreground">Aucun commentaire pour le moment</p>
-            )}
-          </div>
-        </SidebarContent>
-      </Sidebar>
+      {selection && (
+        <AnnotationForm
+          selectedText={selection.text}
+          onSubmit={handleAddComment}
+          onCancel={() => setSelection(null)}
+          position={{
+            top: selection.rect.bottom + window.scrollY + 10,
+            left: selection.rect.left + window.scrollX,
+          }}
+        />
+      )}
     </div>
+    <div className="flex flex-col md:flex-row justify-center items-center mt-4 gap-4">
+  {returnButton}
+  <SaveButton onSave={onSave} />
+</div>
+
+  </div>
+  <div className="w-full lg:w-[300px] border-t lg:border-t-0 lg:border-l overflow-auto h-auto lg:h-[calc(100vh-12rem)] max-h-[calc(100vh-12rem)] flex flex-col">
+    <div className="p-4 flex-1 overflow-auto">
+      <h2 className="font-semibold mb-4">Commentaires</h2>
+      {comments.map((comment) => (
+        <div key={comment.id} className="mb-2 p-2 bg-muted rounded-lg">
+          <p className="text-sm font-medium mb-1">{comment.text}</p>
+          <p className="text-sm text-muted-foreground">
+            {comment.commentText}
+          </p>
+          <button
+            onClick={() => handleRemoveComment(comment.id)}
+            className="mt-2 text-red-600 hover:text-red-800"
+          >
+            Supprimer
+          </button>
+        </div>
+      ))}
+      {comments.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          Aucun commentaire pour le moment
+        </p>
+      )}
+    </div>
+  </div>
+</div>
+
   );
 };
 

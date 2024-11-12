@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { NavbarComponent } from "@/components/ui/navbar"; // Importation correcte de la navbar
 
 interface Project {
   id: number;
@@ -32,7 +33,6 @@ export default function ProjectList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Obtenir le token CSRF
         const csrfResponse = await axios.get(`${apiUrl}/api/get-csrf-token/`, { withCredentials: true });
         const csrfToken = csrfResponse.data.csrfToken;
         setCsrfToken(csrfToken);
@@ -40,14 +40,13 @@ export default function ProjectList() {
         axios.defaults.headers.put['X-CSRFToken'] = csrfToken;
         axios.defaults.headers.delete['X-CSRFToken'] = csrfToken;
 
-        // Obtenir l'utilisateur
         const userResponse = await axios.get(`${apiUrl}/api/auth/user/`, { withCredentials: true });
+
         if (!userResponse.data.id) {
           router.push('/login');
           return;
         }
 
-        // Obtenir les projets
         const projectsResponse = await axios.get(`${apiUrl}/api/projects/`, {
           withCredentials: true,
           headers: {
@@ -84,10 +83,10 @@ export default function ProjectList() {
         closeModal();
         router.push(`/editor/${response.data.id}`);
       } catch (error) {
-        // Vous pouvez ajouter une gestion des erreurs ici
+        // Gérer l'erreur ici si nécessaire
       }
     } else {
-      // Vous pouvez ajouter une validation ou une notification ici
+      // Gérer la validation du formulaire ici si nécessaire
     }
   };
 
@@ -102,7 +101,7 @@ export default function ProjectList() {
       setProjects(projects.filter(project => project.id !== id));
       setProjectToDelete(null);
     } catch (error) {
-      // Vous pouvez ajouter une gestion des erreurs ici
+      // Gérer l'erreur ici si nécessaire
     }
   };
 
@@ -120,10 +119,9 @@ export default function ProjectList() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
+      <NavbarComponent />
       <main className="flex-grow p-6">
         <div className="container mx-auto flex flex-col items-center">
-          
-          {/* Conteneur des cartes au centre */}
           <div className="w-full md:w-2/3 space-y-6 max-h-[80vh] overflow-y-auto">
             {projects.map(project => (
               <Card key={project.id} id={`project-${project.id}`} className="shadow-lg rounded-lg">
