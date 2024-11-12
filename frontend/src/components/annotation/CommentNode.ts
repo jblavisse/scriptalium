@@ -24,6 +24,9 @@ export interface EditorCommentInstance {
 }
 
 class CommentNode extends ElementNode {
+  unwrap() {
+    throw new Error('Method not implemented.');
+  }
   __commentInstance: EditorCommentInstance;
 
   static getType(): string {

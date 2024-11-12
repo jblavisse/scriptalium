@@ -1,4 +1,3 @@
-// CommentsPlugin.tsx
 import React, { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
@@ -99,8 +98,13 @@ export default function CommentsPlugin() {
               const nodeUuid = node.getComment().uuid;
               console.log(`Found CommentNode with UUID: ${nodeUuid}`);
               if (nodeUuid === uuid) {
+                const children = node.getChildren();
+                for (const child of children) {
+                  node.insertBefore(child);
+                }
                 node.remove();
-                console.log(`Comment with UUID ${uuid} removed successfully.`);
+                console.log(`Comment with UUID ${uuid} removed successfully, text preserved.`);
+                return;
               }
             }
 

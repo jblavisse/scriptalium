@@ -1,4 +1,3 @@
-// CommentComponent.tsx
 import React from 'react';
 import { EditorCommentInstance } from './type';
 

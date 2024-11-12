@@ -1,4 +1,3 @@
-// LexicalEditor.tsx
 import React, { useEffect, useState } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -120,11 +119,8 @@ const EditorWrapper: React.FC<EditorWrapperProps> = ({
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [editor] = useLexicalComposerContext();
 
-  // Fonction pour supprimer un commentaire à la fois dans l'éditeur et la liste
   const handleRemoveComment = (uuid: string) => {
-    // Supprime le commentaire de l'éditeur Lexical
     editor.dispatchCommand(REMOVE_COMMENT_COMMAND, { uuid });
-    // Met à jour la liste des commentaires dans la Sidebar
     setComments((prevComments) => prevComments.filter((comment) => comment.id !== uuid));
   };
 
