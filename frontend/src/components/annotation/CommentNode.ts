@@ -4,12 +4,9 @@ import {
   LexicalNode,
   DOMConversionMap,
   DOMConversionOutput,
-  RangeSelection,
-  LexicalEditor,
-  $createNodeSelection,
+  SerializedElementNode,
 } from 'lexical';
 import { addClassNamesToElement } from '@lexical/utils';
-import React from 'react';
 
 export interface EditorComment {
   userName: string;
@@ -23,10 +20,13 @@ export interface EditorCommentInstance {
   comments: EditorComment[];
 }
 
+interface SerializedCommentNode extends SerializedElementNode {
+  uuid: string;
+  textContent: string;
+  comments: EditorComment[];
+}
+
 class CommentNode extends ElementNode {
-  unwrap() {
-    throw new Error('Method not implemented.');
-  }
   __commentInstance: EditorCommentInstance;
 
   static getType(): string {
@@ -42,7 +42,7 @@ class CommentNode extends ElementNode {
     this.__commentInstance = commentInstance;
   }
 
-  // Déclaration du nœud comme inline
+  // Declare node as inline
   isInline(): boolean {
     return true;
   }
@@ -50,11 +50,11 @@ class CommentNode extends ElementNode {
   createDOM(config: EditorConfig): HTMLElement {
     const element = document.createElement('span');
     element.setAttribute('data-comment-instance', JSON.stringify(this.__commentInstance));
-    addClassNamesToElement(element, config.theme.comment as string); // Utilise la classe Tailwind
+    addClassNamesToElement(element, config.theme.comment as string); // Uses Tailwind class
     return element;
   }
 
-  updateDOM(prevNode: CommentNode, dom: HTMLElement, config: EditorConfig): boolean {
+  updateDOM(prevNode: CommentNode, dom: HTMLElement): boolean {
     const commentSpan: HTMLSpanElement = dom;
     const [prevInstance, currentInstance] = [
       JSON.stringify(prevNode.__commentInstance),
@@ -70,7 +70,7 @@ class CommentNode extends ElementNode {
 
   static importDOM(): DOMConversionMap | null {
     return {
-      span: (node: Node) => ({
+      span: () => ({
         conversion: convertCommentSpan,
         priority: 1,
       }),
@@ -87,19 +87,18 @@ class CommentNode extends ElementNode {
     writable.__commentInstance = commentInstance;
   }
 
-  static importJSON(serializedNode: any): CommentNode {
+  static importJSON(serializedNode: SerializedCommentNode): CommentNode {
     const { uuid, textContent, comments } = serializedNode;
     return new CommentNode({ uuid, textContent, comments });
   }
 
-  exportJSON(): any {
+  exportJSON(): SerializedCommentNode {
     return {
+      ...super.exportJSON(),
       type: 'comment',
-      version: 1,
       uuid: this.__commentInstance.uuid,
       textContent: this.__commentInstance.textContent,
       comments: this.__commentInstance.comments,
-      children: [], 
     };
   }
 }

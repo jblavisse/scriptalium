@@ -45,8 +45,8 @@ export default function SelectionPlugin({ onSelectionChange }: Props) {
           console.log('Focus Node:', focusNode);
 
           if (anchorNode instanceof TextNode && focusNode instanceof TextNode) {
-            let startIndex = Math.min(anchor.offset, focus.offset);
-            let endIndex = Math.max(anchor.offset, focus.offset);
+            const startIndex = Math.min(anchor.offset, focus.offset);
+            const endIndex = Math.max(anchor.offset, focus.offset);
 
             console.log('Adjusted Start Index:', startIndex);
             console.log('Adjusted End Index:', endIndex);

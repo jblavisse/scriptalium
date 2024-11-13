@@ -2,7 +2,9 @@ import React from 'react';
 import { EditorCommentInstance } from './type';
 
 interface CommentComponentProps {
-  node: any;
+  node: {
+    __commentInstance: EditorCommentInstance;
+  };
 }
 
 const CommentComponent: React.FC<CommentComponentProps> = ({ node }) => {

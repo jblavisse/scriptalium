@@ -46,11 +46,11 @@ export default function Login() {
           </CardHeader>
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="username">Nom d'utilisateur</Label>
+              <Label htmlFor="username">Votre nom d&apos;utilisateur</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="Votre nom d'utilisateur"
+                placeholder="Votre nom d&apos;utilisateur"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required

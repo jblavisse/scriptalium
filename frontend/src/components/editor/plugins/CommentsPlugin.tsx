@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
@@ -9,7 +9,6 @@ import {
   $setSelection,
   $createParagraphNode,
   $createTextNode,
-  TextNode,
   ElementNode,
   $isTextNode,
   $getRoot,

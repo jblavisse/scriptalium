@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { Menu, Bell } from "lucide-react"
+import { Menu } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -10,8 +10,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Input } from "@/components/ui/input"
-import { Cross2Icon, PersonIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons"
+import {PersonIcon } from "@radix-ui/react-icons"
 
 export function NavbarComponent() {
   const [isOpen, setIsOpen] = React.useState(false)
