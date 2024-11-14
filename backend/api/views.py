@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Text, Annotation, Project
-from .serializers import TextSerializer, AnnotationSerializer, ProjectSerializer, MyTokenObtainPairSerializer , UserSerializer
+from .serializers import TextSerializer, AnnotationSerializer, ProjectSerializer, MyTokenObtainPairSerializer , UserSerializer , RegisterSerializer
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
 from django.conf import settings
@@ -142,3 +142,8 @@ class UserProjectListView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs.get('user_id')
         return Project.objects.filter(user__id=user_id).order_by('-created_at')
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny]
