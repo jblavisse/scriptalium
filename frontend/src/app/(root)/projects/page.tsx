@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { NavbarComponent } from "@/components/ui/navbar";
+import { Footer } from '@/components/ui/footer';
 
 interface Project {
   id: number;
@@ -32,7 +34,6 @@ export default function ProjectList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Obtenir le token CSRF
         const csrfResponse = await axios.get(`${apiUrl}/api/get-csrf-token/`, { withCredentials: true });
         const csrfToken = csrfResponse.data.csrfToken;
         setCsrfToken(csrfToken);
@@ -40,14 +41,13 @@ export default function ProjectList() {
         axios.defaults.headers.put['X-CSRFToken'] = csrfToken;
         axios.defaults.headers.delete['X-CSRFToken'] = csrfToken;
 
-        // Obtenir l'utilisateur
         const userResponse = await axios.get(`${apiUrl}/api/auth/user/`, { withCredentials: true });
+
         if (!userResponse.data.id) {
           router.push('/login');
           return;
         }
 
-        // Obtenir les projets
         const projectsResponse = await axios.get(`${apiUrl}/api/projects/`, {
           withCredentials: true,
           headers: {
@@ -84,10 +84,10 @@ export default function ProjectList() {
         closeModal();
         router.push(`/editor/${response.data.id}`);
       } catch (error) {
-        // Vous pouvez ajouter une gestion des erreurs ici
+        // Gérer l'erreur ici si nécessaire
       }
     } else {
-      // Vous pouvez ajouter une validation ou une notification ici
+      // Gérer la validation du formulaire ici si nécessaire
     }
   };
 
@@ -102,7 +102,7 @@ export default function ProjectList() {
       setProjects(projects.filter(project => project.id !== id));
       setProjectToDelete(null);
     } catch (error) {
-      // Vous pouvez ajouter une gestion des erreurs ici
+      // Gérer l'erreur ici si nécessaire
     }
   };
 
@@ -120,10 +120,9 @@ export default function ProjectList() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
+      <NavbarComponent />
       <main className="flex-grow p-6">
         <div className="container mx-auto flex flex-col items-center">
-          
-          {/* Conteneur des cartes au centre */}
           <div className="w-full md:w-2/3 space-y-6 max-h-[80vh] overflow-y-auto">
             {projects.map(project => (
               <Card key={project.id} id={`project-${project.id}`} className="shadow-lg rounded-lg">
@@ -149,17 +148,15 @@ export default function ProjectList() {
           </div>
         </div>
       </main>
-      
-      <footer className="p-6 bg-white text-center">
+      <div className="text-center">
         <Button 
           onClick={openModal} 
           className="mb-4 px-6 py-3 font-semibold text-black bg-[#CBD690] hover:bg-[#B8C777] hover:shadow-lg hover:scale-105 rounded shadow transition duration-300 ease-in-out"
         >
           <PlusCircle className="mr-2 h-5 w-5" /> Créer un Projet
         </Button>
-        <p className="text-sm text-gray-600">© 2024 Scriptalium</p>
-      </footer>
-
+      </div>
+      <Footer />
       {/* Modal pour la création de projet */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>

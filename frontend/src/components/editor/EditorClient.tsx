@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Notification } from '../notification/Notification';
+import { NavbarComponent } from "@/components/ui/navbar";
+import { Footer } from '@/components/ui/footer';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/index'), { ssr: false });
 
@@ -46,7 +48,7 @@ export default function EditorClient() {
         axios.defaults.headers.post['X-CSRFToken'] = csrfToken;
         axios.defaults.headers.put['X-CSRFToken'] = csrfToken;
         axios.defaults.headers.delete['X-CSRFToken'] = csrfToken;
-        axios.defaults.withCredentials = true; // Assurer que les cookies sont envoyés avec chaque requête
+        axios.defaults.withCredentials = true; 
 
         // Obtenir le projet
         if (id) {
@@ -112,42 +114,46 @@ export default function EditorClient() {
   }
 
   return (
-    <div className="p-4">
-      <div className="bg-[#8B86BE] p-3 sm:p-4 rounded-lg shadow-md mb-4">
-        <div className="flex items-center">
-          <svg
-            className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
-          </svg>
-          <h1 className="text-lg sm:text-xl font-semibold text-white">
-            Project: {project.title}
-          </h1>
+    <div className="flex flex-col min-h-screen">
+      <NavbarComponent /> 
+      <div className="p-4 flex-grow">
+        <div className="bg-[#8B86BE] p-3 sm:p-4 rounded-lg shadow-md mb-4">
+          <div className="flex items-center">
+            <svg
+              className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
+            </svg>
+            <h1 className="text-lg sm:text-xl font-semibold text-white">
+              Projet: {project.title}
+            </h1>
+          </div>
         </div>
-      </div>
-      <LexicalEditor
-        initialContent={project.editor_content || ''}
-        onSave={saveProjectContent}
-        returnButton={
-          <Button
-            className='bg-[#8B86BE] hover:bg-[#8B86BE] text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-transform duration-300 hover:scale-105 active:scale-95'
-            onClick={() => router.push('/projects')}
-          >
-            Retour à la liste des projets
-          </Button>
-        }
-      />
-      {notification && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(null)}
+        <LexicalEditor
+          initialContent={project.editor_content || ''}
+          onSave={saveProjectContent}
+          returnButton={
+            <Button
+              className='bg-[#8B86BE] hover:bg-[#8B86BE] text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-transform duration-300 hover:scale-105 active:scale-95'
+              onClick={() => router.push('/projects')}
+            >
+              Retour à la liste des projets
+            </Button>
+          }
         />
-      )}
+        {notification && (
+          <Notification
+            message={notification.message}
+            type={notification.type}
+            onClose={() => setNotification(null)}
+          />
+        )}
+      </div>
+      <Footer />
     </div>
   );
 }
