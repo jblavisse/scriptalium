@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Text, Annotation , Project
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+import re
 
 class TextSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,3 +35,39 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'password2', 'email')
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Les mots de passe ne correspondent pas."})
+
+        # Validation personnalisée
+        password = attrs['password']
+        if len(password) < 8:
+            raise serializers.ValidationError({"password": "Le mot de passe doit contenir au moins 8 caractères."})
+        if not re.search(r'[A-Z]', password):
+            raise serializers.ValidationError({"password": "Le mot de passe doit contenir au moins une majuscule."})
+        if not re.search(r'[0-9]', password):
+            raise serializers.ValidationError({"password": "Le mot de passe doit contenir au moins un chiffre."})
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            raise serializers.ValidationError({"password": "Le mot de passe doit contenir au moins un caractère spécial."})
+
+        return attrs
+
+    def create(self, validated_data):
+        user = User.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email'],
+        )
+
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
