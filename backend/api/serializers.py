@@ -48,7 +48,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Les mots de passe ne correspondent pas."})
 
-        # Validation personnalisée
         password = attrs['password']
         if len(password) < 8:
             raise serializers.ValidationError({"password": "Le mot de passe doit contenir au moins 8 caractères."})
