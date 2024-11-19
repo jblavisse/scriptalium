@@ -7,6 +7,13 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'vdjango-insec
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Rediriger la racine '/' vers '/register'
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/register', request.url));
+  }
+
   const accessToken = request.cookies.get('access_token')?.value;
 
   if (!accessToken) {
@@ -65,5 +72,5 @@ async function handleRefreshToken(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/editor/:path*'],
+  matcher: ['/', '/editor/:path*'],
 };
