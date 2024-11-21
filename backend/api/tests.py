@@ -4,8 +4,8 @@ from unittest.mock import patch, MagicMock
 from django.urls import reverse
 from rest_framework import status
 from datetime import timedelta
-from django.conf import settings
 from api.views import MyTokenObtainPairView
+
 
 class LoginUnitTestCase(TestCase):
     def setUp(self):

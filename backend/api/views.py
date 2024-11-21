@@ -3,21 +3,23 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Text, Annotation, Project
-from .serializers import TextSerializer, AnnotationSerializer, ProjectSerializer, MyTokenObtainPairSerializer , UserSerializer , RegisterSerializer
+from .models import Text, Project
+from .serializers import TextSerializer, ProjectSerializer, MyTokenObtainPairSerializer, \
+    UserSerializer, RegisterSerializer, AnnotationSerializer  # Supprimer l'importation d'Annotation si inutile
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.http import JsonResponse
 from django.conf import settings
 from django.contrib.auth.models import User
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from django.middleware.csrf import get_token
 
+
 @api_view(['GET'])
 @ensure_csrf_cookie
 def get_csrf_token(request):
     csrf_token = get_token(request)
     return Response({"csrfToken": csrf_token})
+
 
 @api_view(['POST'])
 def create_text(request):
@@ -26,6 +28,7 @@ def create_text(request):
         text = serializer.save()
         return Response({'textId': text.id}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 def add_annotation(request):
@@ -47,17 +50,18 @@ def add_annotation(request):
     }
 
     annotation_serializer = AnnotationSerializer(data=annotation_data)
-    
+
     if annotation_serializer.is_valid():
         annotation_serializer.save()
         return Response({'message': 'Annotation added', 'textId': text.id}, status=status.HTTP_201_CREATED)
     return Response(annotation_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = [] 
+    filterset_fields = []
 
     def get_queryset(self):
         user = self.request.user
@@ -68,6 +72,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
@@ -76,7 +81,8 @@ class MyTokenObtainPairView(TokenObtainPairView):
         try:
             serializer.is_valid(raise_exception=True)
         except Exception:
-            return Response({"detail": "Nom d'utilisateur ou mot de passe incorrect"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"detail": "Nom d'utilisateur ou mot de passe incorrect"}, status=status.HTTP_401_UNAUTHORIZED)
 
         token = serializer.validated_data
 
@@ -103,6 +109,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
         return response
 
+
 class MyTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         try:
@@ -120,12 +127,14 @@ class MyTokenRefreshView(TokenRefreshView):
             return Response({"detail": "Erreur de rafraîchissement du token"}, status=status.HTTP_401_UNAUTHORIZED)
         return response
 
+
 class UserView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
+
 
 class LogoutView(APIView):
 
@@ -135,6 +144,7 @@ class LogoutView(APIView):
         response.delete_cookie('refresh_token')
         return response
 
+
 class UserProjectListView(generics.ListAPIView):
     serializer_class = ProjectSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -142,6 +152,7 @@ class UserProjectListView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs.get('user_id')
         return Project.objects.filter(user__id=user_id).order_by('-created_at')
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()

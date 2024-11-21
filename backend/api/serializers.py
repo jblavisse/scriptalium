@@ -1,19 +1,22 @@
 from rest_framework import serializers
-from .models import Text, Annotation , Project
+from .models import Text, Annotation, Project
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 import re
+
 
 class TextSerializer(serializers.ModelSerializer):
     class Meta:
         model = Text
         fields = ['id', 'content', 'annotations']
 
+
 class AnnotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Annotation
         fields = ['id', 'title', 'description', 'start_index', 'end_index', 'text', 'created_at']
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -22,19 +25,24 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         return token
 
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+
+
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ['id', 'user', 'title', 'description', 'editor_content', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
@@ -56,7 +64,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         if not re.search(r'[0-9]', password):
             raise serializers.ValidationError({"password": "Le mot de passe doit contenir au moins un chiffre."})
         if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-            raise serializers.ValidationError({"password": "Le mot de passe doit contenir au moins un caractère spécial."})
+            raise serializers.ValidationError(
+                {"password": "Le mot de passe doit contenir au moins un caractère spécial."})
 
         return attrs
 

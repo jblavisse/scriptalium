@@ -2,6 +2,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, AuthenticationFailed
 from django.conf import settings
 
+
 class CookieJWTAuthentication(JWTAuthentication):
     def get_raw_token(self, request):
         return request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE'])

@@ -1,8 +1,7 @@
-
 "use client";
 
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import axios from 'axios';
+import axios from 'axios'; // Removed AxiosError
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 
@@ -34,7 +33,7 @@ const Register = () => {
           withCredentials: true,
         });
       } catch (err) {
-        console.error('Erreur lors de l\'obtention du token CSRF', err);
+        console.error('Erreur lors de l&apos;obtention du token CSRF', err);
       }
     };
     getCsrfToken();
@@ -94,7 +93,7 @@ const Register = () => {
     try {
       const csrfToken = Cookies.get('csrftoken');
 
-      const response = await axios.post(
+      await axios.post(
         `${apiUrl}/api/register/`,
         {
           username: form.username,
@@ -110,6 +109,7 @@ const Register = () => {
           withCredentials: true,
         }
       );
+
       setMessage('Inscription réussie ! Vous pouvez maintenant vous connecter.');
       setForm({
         username: '',
@@ -120,13 +120,17 @@ const Register = () => {
       setTimeout(() => {
         router.push('/login');
       }, 2000);
-    } catch (error: any) {
-      if (error.response && error.response.data) {
-        const errors = error.response.data;
-        const errorMessages = Object.values(errors).flat().join(' ');
-        setError(`Erreur: ${errorMessages}`);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        if (error.response && error.response.data) {
+          const errors = error.response.data;
+          const errorMessages = Object.values(errors).flat().join(' ');
+          setError(`Erreur: ${errorMessages}`);
+        } else {
+          setError('Erreur lors de l&apos;inscription.');
+        }
       } else {
-        setError('Erreur lors de l\'inscription.');
+        setError('Erreur inconnue lors de l&apos;inscription.');
       }
       console.error(error);
     }
@@ -140,7 +144,7 @@ const Register = () => {
         {error && <div className="mb-4 p-4 bg-red-100 text-red-700 rounded">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="username" className="block text-gray-700">Nom d'utilisateur</label>
+            <label htmlFor="username" className="block text-gray-700">Nom d&apos;utilisateur</label>
             <input
               type="text"
               id="username"
@@ -173,7 +177,7 @@ const Register = () => {
               onChange={handleChange}
               required
               className="mt-1 p-2 w-full border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              minLength={8} // Attribut HTML5
+              minLength={8}
             />
           </div>
           <div className="mb-6">
@@ -186,7 +190,7 @@ const Register = () => {
               onChange={handleChange}
               required
               className="mt-1 p-2 w-full border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              minLength={8} // Attribut HTML5
+              minLength={8}
             />
           </div>
           {passwordErrors.length > 0 && (
@@ -207,7 +211,7 @@ const Register = () => {
             }`}
             disabled={passwordErrors.length > 0 || form.password !== form.password2}
           >
-            S'inscrire
+            S&apos;inscrire
           </button>
         </form>
         <p className="mt-4 text-center text-gray-600">

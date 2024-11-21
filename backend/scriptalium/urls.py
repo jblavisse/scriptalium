@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
@@ -27,7 +26,7 @@ urlpatterns = [
     path('api/auth/logout/', LogoutView.as_view(), name='logout'),
     path('api/texts/', create_text, name='create_text'),
     path('api/texts/add-annotation/', add_annotation, name='add_annotation'),
-    path('api/get-csrf-token/', get_csrf_token, name='get_csrf_token'), 
+    path('api/get-csrf-token/', get_csrf_token, name='get_csrf_token'),
     path('api/', include(router.urls)),
     path('api/projects/user/<int:user_id>/', UserProjectListView.as_view(), name='user-projects'),
 ]
