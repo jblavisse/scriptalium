@@ -1,1 +1,7 @@
-npm test
+echo "Exécution des tests Python..."
+(cd backend && source env/Scripts/activate && python manage.py test && flake8 .)
+
+echo "Exécution des tests Lint..."
+(cd frontend && npm run lint )
+
+echo "Tous les tests ont réussi. Procédure de commit continue."
