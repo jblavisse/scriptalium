@@ -35,7 +35,7 @@ jobs:
 
       - name: Apply backend migrations
         run: |
-          docker-compose exec api python manage.py migrate
+          docker-compose exec -T api python manage.py migrate
 
       - name: Run backend tests
         working-directory: ./backend
