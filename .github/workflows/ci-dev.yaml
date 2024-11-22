@@ -23,16 +23,22 @@ jobs:
       - name: Setup Docker Compose
         run: docker-compose -f docker-compose.yml up -d --build
 
-      - uses: actions/setup-python@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
           python-version: '3.11'
-    
-      - name: Exécuter les tests
+
+      - name: Install dependencies
+        working-directory: ./backend
         run: |
-              cd backend
-              python manage.py test
-      
-      - name: Exécuter le linter
+          pip install -r requirements.txt
+
+      - name: Run tests
+        working-directory: ./backend
         run: |
-              cd backend
-              flake8
+          python manage.py test
+
+      - name: Run linter
+        working-directory: ./backend
+        run: |
+          flake8
