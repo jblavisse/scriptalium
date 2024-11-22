@@ -14,7 +14,7 @@ jobs:
 
       - name: Configurer Docker Buildx
         uses: docker/setup-buildx-action@v2
-      
+
       - name: Install Docker Compose
         run: |
           sudo apt-get update
@@ -28,17 +28,37 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         working-directory: ./backend
         run: |
           pip install -r requirements.txt
 
-      - name: Run tests
+      - name: Apply backend migrations
+        working-directory: ./backend
+        run: |
+          python manage.py migrate
+
+      - name: Run backend tests
         working-directory: ./backend
         run: |
           python manage.py test
 
-      - name: Run linter
+      - name: Run backend linter
         working-directory: ./backend
         run: |
-          flake8 . 
+          flake8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: |
+          npm ci
+
+      - name: Run Cypress tests
+        working-directory: ./frontend
+        run: |
+          npx cypress run
