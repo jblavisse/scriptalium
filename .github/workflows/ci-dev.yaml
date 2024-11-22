@@ -29,8 +29,10 @@ jobs:
     
       - name: Exécuter les tests
         run: |
-          python manage.py test
+              cd backend
+              python manage.py test
       
       - name: Exécuter le linter
         run: |
-          flake8
+              cd backend
+              flake8
