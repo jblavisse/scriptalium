@@ -20,6 +20,7 @@ API_URL = config('API_URL', default='http://localhost:8003')
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://89.168.61.185:3001',
+     'https://api-scriptalium.dasilvarocha-eric.fr',
     API_URL,
 ]
 
@@ -28,6 +29,7 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://89.168.61.185:3001',
+    'https://api-scriptalium.dasilvarocha-eric.fr',
     API_URL,
 ]
 
