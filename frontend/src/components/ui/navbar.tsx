@@ -21,7 +21,7 @@ export function NavbarComponent() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0">
-              <span className="text-2xl font-bold text-primary">Logo</span>
+              <span className="text-2xl font-bold text-primary">Register</span>
             </Link>
             <div className="hidden md:block ml-10">
               <Link
@@ -55,7 +55,7 @@ export function NavbarComponent() {
                     className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
                     onClick={() => setIsOpen(false)}
                   >
-                    Projets
+                    Tous les scripts
                   </Link>
                   <Link
                     href="/login"

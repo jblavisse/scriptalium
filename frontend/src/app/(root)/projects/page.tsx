@@ -153,7 +153,7 @@ export default function ProjectList() {
           onClick={openModal} 
           className="mb-4 px-6 py-3 font-semibold text-black bg-[#CBD690] hover:bg-[#B8C777] hover:shadow-lg hover:scale-105 rounded shadow transition duration-300 ease-in-out"
         >
-          <PlusCircle className="mr-2 h-5 w-5" /> Créer un Projet
+          <PlusCircle className="mr-2 h-5 w-5" /> Créer un scénario
         </Button>
       </div>
       <Footer />
